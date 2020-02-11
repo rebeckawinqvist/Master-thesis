@@ -5,7 +5,8 @@ import cvxpy as cp
 import numpy as np  
 from cvxpylayers.torch.cvxpylayer import CvxpyLayer
 import logging
-logging.getLogger().setLevel(logging.INFO)
+logging.getLogger().setLevel(logging.WARNING)
+import statistics
 
 class Network(nn.Module):
     def __init__(self, n_features, hidden_list, n_outputs):
@@ -33,11 +34,13 @@ class Network(nn.Module):
     def forward(self, x):
         x = x.astype(np.float)
         u = torch.from_numpy(x).float()
+        # linear layers with relu activation
         for layer in self.layers:
-            u = layer(u)
+            u = F.relu(layer(u))
+
         # relu
         u_p = self.cvxpy_layer(u, x)
-        print(u_p)
+        return u_p
 
 
     def cvxpy_layer(self, parameter, state):
@@ -67,6 +70,14 @@ class Network(nn.Module):
         h_m = torch.from_numpy(h_m).float()
         u_m = torch.from_numpy(u_m).float()
         u_p_star, = layer(E_m, f_m, G_m, h_m, u_m)
+
+        """ 
+        E_m.requires_grad = True
+        f_m.requires_grad = True
+        G_m.requires_grad = True
+        h_m.requires_grad = True
+        u_m.requires_grad = True
+        """
 
         logging.info("  ---------- CVXPYLAYER CONSTRUCTED ----------")
 
@@ -98,12 +109,54 @@ class Network(nn.Module):
         
 
 
-# input data
-X = np.loadtxt('input_data.csv', delimiter=',')
-x0 = X[0,:]
+if __name__ == "__main__":
+    # input data
+    X = np.loadtxt('input_data_small.csv', delimiter=',')
+    Y = np.loadtxt('output_data_small.csv', delimiter=',')
+    #x0 = X[0,:]
 
-NN = Network(2, [8,4,2], 1)
-NN.forward(x0)
+    NN = Network(2, [8,4,2], 1)
+    #NN.forward(x0)
+
+    num_epochs = 1
+    batch_size = 12
+    device = 'cpu'
+
+    optimizer = torch.optim.Adam(NN.parameters())
+    loss_fcn = torch.nn.MSELoss()
+
+    NN.to(device)
+
+    # train the model
+    for epoch in range(num_epochs):
+        i = 0
+        for row in X:
+            # forward pass
+            output = NN(row)
+            target = torch.from_numpy(np.array([Y[i,0]])).float()
+            loss = loss_fcn(output, target)
+            loss.requires_grad = True
+
+            # backward and optimize
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            i += 1
+
+    # test the model
+    loss_list = []
+    with torch.no_grad():
+        i = 0        
+        for row in X:
+            output = NN(row)
+            target = torch.from_numpy(np.array([Y[i,0]])).float()
+            loss = loss_fcn(output, target)
+            print(loss.item())
+            loss_list.append(loss.item())
+            i += 1
+
+    print("Mean mse: ", statistics.mean(loss_list))  
 
 
 #print("A dot B: \n", np.dot(A,B))
