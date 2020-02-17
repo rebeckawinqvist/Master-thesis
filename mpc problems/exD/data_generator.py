@@ -83,14 +83,14 @@ filenameIn = ''
 filenameOut = ''
 
 if data_generation == 'grid':
-  initial_states = np.loadtxt('initial_states_grid.csv', delimiter=',')
-  filenameIn = 'input_data_grid.csv'
-  filenameOut = 'output_data_grid.csv'
+  initial_states = np.loadtxt('exD_initial_states_grid.csv', delimiter=',')
+  filenameIn = 'exD_input_data_grid.csv'
+  filenameOut = 'exD_output_data_grid.csv'
 
 elif data_generation == 'rays':
-  initial_states = np.loadtxt('initial_states_rays.csv', delimiter=',')
-  filenameIn = 'input_data_rays.csv'
-  filenameOut = 'output_data_rays.csv'
+  initial_states = np.loadtxt('exD_initial_states_rays.csv', delimiter=',')
+  filenameIn = 'exD_input_data_rays.csv'
+  filenameOut = 'exD_output_data_rays.csv'
 
 
 nsim = initial_states.shape[0]

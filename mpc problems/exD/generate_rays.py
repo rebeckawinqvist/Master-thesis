@@ -3,8 +3,8 @@ from numpy import loadtxt, savetxt
 import matplotlib.pyplot as plt
 from shapely.geometry.polygon import Polygon, LinearRing
 
-points = loadtxt('cinfV.csv', delimiter = ',')
-CinfH = loadtxt('cinfH.csv', delimiter = ',')
+points = loadtxt('exD_cinfV.csv', delimiter = ',')
+CinfH = loadtxt('exD_cinfH.csv', delimiter = ',')
 Gx = CinfH[:,0]
 Gy = CinfH[:,1]
 h = CinfH[:,2]
@@ -20,11 +20,14 @@ if plot:
 
     # plot constraints    
     for i in range(numOfCons):
-        k = -CinfH[i,0]/CinfH[i,1]
-        m = CinfH[i,2]/CinfH[i,1]
-        f = k * x + m
-        plt.plot(x,f, '-k', linewidth=linewidth, color='gainsboro')
-    
+        if CinfH[i,1] != 0:
+            k = -CinfH[i,0]/CinfH[i,1]
+            m = CinfH[i,2]/CinfH[i,1]
+            f = k * x + m
+            plt.plot(x,f, '-k', linewidth=linewidth, color='gainsboro')
+        else:
+            plt.axvline(x = CinfH[i,2]/CinfH[i,0], ymin=-10, ymax=10, linewidth=linewidth, color='gainsboro')
+
 
     # plot vertices
     for i in range(points.shape[0]):
@@ -47,7 +50,8 @@ if plot:
             k = (y0-yV)/(x0-xV)
             m = y0 - k*x0
         else:
-            continue
+            #plt.axvline(x = xV, ymin=min(y0,yV), ymax=max(y0,yV), linewidth=linewidth, color='firebrick')
+            k, m = 0, 0
         params = [k, m, x0, xV, y0, yV]
         lines.append(params)
         plt.plot(x,y, linewidth=linewidth, color='firebrick')
@@ -58,17 +62,25 @@ if plot:
     yArray = []
     for param in lines:
         k, m, x0, xV, y0, yV = param[0], param[1], param[2], param[3], param[4], param[5]
-        if x0 > xV:
-            xRange = np.linspace(-5, x0, 10)
-        else:
-            xRange = np.linspace(x0, xV, 10)
+        if k == 0:
+            yRange = np.linspace(min(y0,yV), max(y0,yV), 10)
+            for y in yRange:
+                point = (x0,y)
+                addPoints.append(point)
+                xArray.append(x0)
+                yArray.append(y)
+        else:        
+            if x0 > xV:
+                xRange = np.linspace(-5, x0, 10)
+            else:
+                xRange = np.linspace(x0, xV, 10)
 
-        for x in xRange:
-            y = k *x + m
-            point = (x,y)
-            addPoints.append(point)
-            xArray.append(x)
-            yArray.append(y)
+            for x in xRange:
+                y = k *x + m
+                point = (x,y)
+                addPoints.append(point)
+                xArray.append(x)
+                yArray.append(y)
 
     
     # plot points
@@ -77,13 +89,11 @@ if plot:
 
     plt.show()
 
-print("Added points: ", len(addPoints))
-
 # convert lists into arrays
 xArray = np.array(xArray)
 yArray = np.array(yArray)
 points = np.column_stack((xArray, yArray))
 
-np.savetxt("initial_states.csv", points, delimiter=",")
+np.savetxt("exD_initial_states_rays.csv", points, delimiter=",")
 
 

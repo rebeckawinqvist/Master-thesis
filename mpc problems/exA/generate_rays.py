@@ -3,8 +3,8 @@ from numpy import loadtxt, savetxt
 import matplotlib.pyplot as plt
 from shapely.geometry.polygon import Polygon, LinearRing
 
-points = loadtxt('cinfV.csv', delimiter = ',')
-CinfH = loadtxt('cinfH.csv', delimiter = ',')
+points = loadtxt('exA_cinfV.csv', delimiter = ',')
+CinfH = loadtxt('exA_cinfH.csv', delimiter = ',')
 Gx = CinfH[:,0]
 Gy = CinfH[:,1]
 h = CinfH[:,2]
@@ -20,11 +20,14 @@ if plot:
 
     # plot constraints    
     for i in range(numOfCons):
-        k = -CinfH[i,0]/CinfH[i,1]
-        m = CinfH[i,2]/CinfH[i,1]
-        f = k * x + m
-        plt.plot(x,f, '-k', linewidth=linewidth, color='gainsboro')
-    
+        if CinfH[i,1] != 0:
+            k = -CinfH[i,0]/CinfH[i,1]
+            m = CinfH[i,2]/CinfH[i,1]
+            f = k * x + m
+            plt.plot(x,f, '-k', linewidth=linewidth, color='gainsboro')
+        else:
+            plt.axvline(x = CinfH[i,2]/CinfH[i,0], ymin=-10, ymax=10)
+
 
     # plot vertices
     for i in range(points.shape[0]):
@@ -77,13 +80,12 @@ if plot:
 
     plt.show()
 
-print("Added points: ", len(addPoints))
 
 # convert lists into arrays
 xArray = np.array(xArray)
 yArray = np.array(yArray)
 points = np.column_stack((xArray, yArray))
 
-np.savetxt("initial_states.csv", points, delimiter=",")
+np.savetxt("exA_initial_states_rays.csv", points, delimiter=",")
 
 

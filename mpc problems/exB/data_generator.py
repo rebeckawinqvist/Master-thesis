@@ -20,12 +20,12 @@ Bd = sparse.csc_matrix([
 
 # Constraints
 u0 = 0
-umin = np.array([-0.5]) - u0
-umax = np.array([0.5]) - u0
-xmin = np.array([-5.,
-                 -5.])
-xmax = np.array([ 5.,
-                 5.])
+umin = np.array([-5]) - u0
+umax = np.array([5]) - u0
+xmin = np.array([-10.,
+                 -10.])
+xmax = np.array([ 10.,
+                 10.])
 
 
 
@@ -83,14 +83,14 @@ filenameIn = ''
 filenameOut = ''
 
 if data_generation == 'grid':
-  initial_states = np.loadtxt('initial_states_grid.csv', delimiter=',')
-  filenameIn = 'input_data_grid.csv'
-  filenameOut = 'output_data_grid.csv'
+  initial_states = np.loadtxt('exB_initial_states_grid.csv', delimiter=',')
+  filenameIn = 'exB_input_data_grid.csv'
+  filenameOut = 'exB_output_data_grid.csv'
 
 elif data_generation == 'rays':
-  initial_states = np.loadtxt('initial_states_rays.csv', delimiter=',')
-  filenameIn = 'input_data_rays.csv'
-  filenameOut = 'output_data_rays.csv'
+  initial_states = np.loadtxt('exB_initial_states_rays.csv', delimiter=',')
+  filenameIn = 'exB_input_data_rays.csv'
+  filenameOut = 'exB_output_data_rays.csv'
 
 
 nsim = initial_states.shape[0]

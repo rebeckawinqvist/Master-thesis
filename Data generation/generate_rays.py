@@ -84,6 +84,6 @@ xArray = np.array(xArray)
 yArray = np.array(yArray)
 points = np.column_stack((xArray, yArray))
 
-np.savetxt("initial_states.csv", points, delimiter=",")
+np.savetxt("initial_states_rays.csv", points, delimiter=",")
 
 

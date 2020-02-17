@@ -20,8 +20,8 @@ Bd = sparse.csc_matrix([
 
 # Constraints
 u0 = 0
-umin = np.array([-0.5]) - u0
-umax = np.array([0.5]) - u0
+umin = np.array([-1]) - u0
+umax = np.array([1]) - u0
 xmin = np.array([-5.,
                  -5.])
 xmax = np.array([ 5.,
@@ -78,19 +78,19 @@ u_flat = u.flatten()
 #size = P_flat.shape[0] + A_flat.shape[0] + q_flat.shape[0] + l_flat.shape[0] + u_flat.shape[0] + x0.shape[0]
 size = x0.shape[0]
 
-data_generation = 'grid'
+data_generation = 'rays'
 filenameIn = ''
 filenameOut = ''
 
 if data_generation == 'grid':
-  initial_states = np.loadtxt('initial_states_grid.csv', delimiter=',')
-  filenameIn = 'input_data_grid.csv'
-  filenameOut = 'output_data_grid.csv'
+  initial_states = np.loadtxt('exA_initial_states_grid.csv', delimiter=',')
+  filenameIn = 'exA_input_data_grid.csv'
+  filenameOut = 'exA_output_data_grid.csv'
 
 elif data_generation == 'rays':
-  initial_states = np.loadtxt('initial_states_rays.csv', delimiter=',')
-  filenameIn = 'input_data_rays.csv'
-  filenameOut = 'output_data_rays.csv'
+  initial_states = np.loadtxt('exA_initial_states_rays.csv', delimiter=',')
+  filenameIn = 'exA_input_data_rays.csv'
+  filenameOut = 'exA_output_data_rays.csv'
 
 
 nsim = initial_states.shape[0]
