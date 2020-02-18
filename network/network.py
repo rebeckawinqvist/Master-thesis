@@ -14,7 +14,7 @@ from sklearn.model_selection import train_test_split
 
 
 # Global variables
-example = 'exA'
+example = 'exD'
 filename = example+'_'
 
 # (GLOBAL) network settings
@@ -185,6 +185,7 @@ class Network(nn.Module):
 
 if __name__ == "__main__":
     # define network
+    print("\nRunning example: " + example + "\n")
     NN = Network(2, [8,8], 1)
     optimizer = torch.optim.Adam(NN.parameters(), lr = learning_rate)
     NN.to(device)
