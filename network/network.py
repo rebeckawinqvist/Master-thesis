@@ -11,11 +11,12 @@ import logging
 logging.getLogger().setLevel(logging.INFO)
 import statistics           
 from sklearn.model_selection import train_test_split
+import sys
 
+example = str(sys.argv[1]).upper()
 
-# Global variables
-example = 'exD'
-filename = example+'_'
+example_name = 'ex'+example
+filename = example_name+'_'
 
 # (GLOBAL) network settings
 num_epochs = 10
@@ -26,29 +27,29 @@ criterion = nn.MSELoss()
 
 
 class Network(nn.Module):
-    def __init__(self, n_features, hidden_list, n_outputs):
+    def __init__(self, hidden_list):
         super().__init__()
 
-        self.n_features = n_features
+        self.n_features = 0
+        self.n_outputs = 0
         self.hidden_list = hidden_list
-        self.n_outputs = n_outputs
         self.problem_params = {}
 
+        # set optimization problem parameters (A, B, H, x_lb...)
+        self.load_problem_parameters()
+
         L = len(hidden_list)
-        layers = [nn.Linear(n_features, self.hidden_list[0])]
+        layers = [nn.Linear(self.n_features, self.hidden_list[0])]
         for i in range(L):
             if i == L-1:
                 # last relu layer
-                fc = nn.Linear(self.hidden_list[i], n_outputs)
+                fc = nn.Linear(self.hidden_list[i], self.n_outputs)
             else:
                 fc = nn.Linear(self.hidden_list[i], self.hidden_list[i+1])
         
             layers.append(fc)
 
         self.reluLayers = nn.ModuleList(layers)
-
-        # set optimization problem parameters (A, B, H, x_lb...)
-        self.load_problem_parameters()
 
         # cvxpy-layer
         self.cvxpy_layer = self.create_cvxpylayer()
@@ -65,9 +66,12 @@ class Network(nn.Module):
 
         #print(A, "\n\n", B, "\n\n", H, "\n\n", x_lb, "\n\n", x_ub, "\n\n", u_lb, "\n\n", u_ub)
 
-        n = A.ndim
+        n = A.shape[1]
         m = B.ndim
         num_constraints = H.shape[0]
+
+        self.n_features = n
+        self.n_outputs = m
 
         self.problem_params.update([ ('A', A), ('B', B), ('H', H), 
                                      ('xlb', xlb), ('xub', xub), ('ulb', ulb), ('uub', uub),
@@ -86,13 +90,13 @@ class Network(nn.Module):
         E = cp.Parameter((num_constraints, m))
         f = cp.Parameter((num_constraints, 1))
         G = cp.Parameter((2*m, m))
-        h = cp.Parameter((2*m, m))
-        u = cp.Parameter((m, 1))        
+        h = cp.Parameter((2*m, 1))
+        u = cp.Parameter((m, 1))      
 
         obj = cp.Minimize(cp.sum_squares(u-u_p))
         cons = [E @ u_p <= f, G @ u_p <= h]
         problem = cp.Problem(obj, cons)
-        assert problem.is_dpp()
+        assert problem.is_dpp() 
         assert problem.is_dcp()
 
         layer = CvxpyLayer(problem, parameters = [E, f, G, h, u], variables = [u_p])
@@ -107,17 +111,20 @@ class Network(nn.Module):
         for layer in self.reluLayers:
             u = F.relu(layer(u))
 
-
+        """
         # ====================================================================
         # ============= THIS MAY CAUSE AN ERROR FOR m > 1 ====================
         # ====================================================================
-        u_tensor = torch.zeros([batch_size, m, 1])
+
+        u_tensor = torch.zeros([batch_size, m, 4])
         for i in range(batch_size):
-            u_tensor[i] = u[i]
-   
+            u_tensor[i] = u[i].expand(2,1)
+        """
+        u = u.unsqueeze(-1)
+        #u.expand(batch_size,m,1)
 
         # projection/cvxpy-layer
-        E, f, G, h, u_p = self.get_tensors(x, u_tensor)
+        E, f, G, h, u_p = self.get_tensors(x, u)
         
 
         return u_p
@@ -129,6 +136,7 @@ class Network(nn.Module):
             Gu^p <= h 
         """
 
+        bs = u_param.shape[0]
         # constraints
         m = self.problem_params['m']
         num_constraints = self.problem_params['num_constraints']
@@ -138,10 +146,14 @@ class Network(nn.Module):
         H = self.problem_params['H']
         ulb = self.problem_params['ulb']
         uub = self.problem_params['uub']
+        if m > 1:
+            ulb = np.expand_dims(ulb, axis=1)
+            uub = np.expand_dims(uub, axis=1)
 
-        Cc = H[:,0:2]
-        dc = H[:,2]
+        Cc = H[:,0:-1]
+        dc = H[:,-1]
         Cu = np.kron(np.eye(m),np.array([[1.], [-1.]]))
+        Cu = np.vstack((np.eye(m), -np.eye(m)))
         du = np.vstack((uub, -ulb))
 
         D_tilde = Cc @ A
@@ -158,10 +170,9 @@ class Network(nn.Module):
         h = torch.zeros([batch_size, 2*m, 1])
 
 
-        for i in range(batch_size):
+        for i in range(bs):
             f_tilde = dc - D_tilde @ states[i,:].detach().numpy()
-            if m == 1:
-                f_tilde = np.expand_dims(f_tilde, axis=1)
+            f_tilde = np.expand_dims(f_tilde, axis=1)
 
             E[i] = torch.from_numpy(E_tilde).float()
             f[i] = torch.from_numpy(f_tilde).float()
@@ -186,13 +197,14 @@ class Network(nn.Module):
 if __name__ == "__main__":
     # define network
     print("\nRunning example: " + example + "\n")
-    NN = Network(2, [8,8], 1)
+    NN = Network([8,8])
     optimizer = torch.optim.Adam(NN.parameters(), lr = learning_rate)
     NN.to(device)
+    m = NN.problem_params['m']
 
     # data
-    X = torch.from_numpy(np.loadtxt('exA_input_data_grid.csv', delimiter=','))
-    Y = torch.from_numpy(np.loadtxt('exA_output_data_grid.csv', delimiter=',')[:,0])
+    X = torch.from_numpy(np.loadtxt(filename+'input_data_grid.csv', delimiter=','))
+    Y = torch.from_numpy(np.loadtxt(filename+'output_data_grid.csv', delimiter=',')[:,0:m])
 
     # split data into training set and test set
     train, test = train_test_split(list(range(X.shape[0])), test_size=.25)
@@ -212,13 +224,23 @@ if __name__ == "__main__":
         batch_losses = []
         #i = 0
         for ix, (x, y) in enumerate(train_set):
+            if y.shape[0] != batch_size:
+                continue
+            
             _x = Variable(x).float()
+            _y = Variable(y).float()
+            _y = _y.unsqueeze(-1)
+            _y.expand(batch_size,m,1)
+
+            """
             y = np.expand_dims(y, axis=1)
+            print(y)
             y_t = torch.zeros([batch_size, NN.problem_params['m'], 1])
             for i in range(batch_size):
-                y_t[i] = torch.from_numpy(y[i])
+                y_t[i] = torch.from_numpy(np.expand_dims(y[i], axis=1))
+                """
 
-            _y = Variable(y_t).float()
+            #_y = Variable(y_t).float()
 
             # forward pass
             output = NN(_x)
@@ -243,12 +265,17 @@ if __name__ == "__main__":
     test_batch_losses = []
     for ix, (x, y) in enumerate(test_set):
         _x = Variable(x).float()
+        _y = Variable(y).float()
+        _y = _y.unsqueeze(-1)
+        #_y.expand(batch_size,m,1)
+        """
         y = np.expand_dims(y, axis=1)
         y_t = torch.zeros([batch_size, NN.problem_params['m'], 1])
         for i in range(batch_size):
-            y_t[i] = torch.from_numpy(y[i])
+            y_t[i] = torch.from_numpy(np.expand_dims(y[i], axis=1))
 
         _y = Variable(y_t).float()
+        """
 
         # forward pass
         test_output = NN(_x)
