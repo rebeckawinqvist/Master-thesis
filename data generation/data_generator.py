@@ -3,9 +3,13 @@ import numpy as np
 import scipy as sp
 from scipy import sparse
 from numpy import savetxt, loadtxt
+import sys
+import random
 
-example = 'exA'
-filename = example+'_'
+example = str(sys.argv[1]).upper()
+
+example_name = 'ex'+example
+filename = example_name+'_'
 
 # load data
 A = np.loadtxt(filename+'A.csv', delimiter=',')
@@ -21,14 +25,33 @@ QN = Q
 R = np.loadtxt(filename+'R.csv', delimiter=',')
 N = int(np.loadtxt(filename+'N.csv', delimiter=','))
 
-n = A.ndim
+
+n = A.shape[1]
 m = B.ndim
 
-nx, nu = n, m
-print("n: ", n)
 xmin, xmax = xlb, xub
 umin, umax = ulb, uub
-Ad, Bd = A, np.expand_dims(B, axis=1)
+Ad, Bd = A,B
+nx, nu = n, m
+
+if m == 1:
+  Bd = np.expand_dims(B, axis=1)
+
+
+data_generation = 'grid'
+filenameIn = ''
+filenameOut = ''
+
+if data_generation == 'grid':
+  initial_states = np.loadtxt(filename+'initial_states_grid.csv', delimiter=',')
+  filenameIn = filename+'input_data_grid.csv'
+  filenameOut = filename+'output_data_grid.csv'
+
+elif data_generation == 'rays':
+  initial_states = np.loadtxt(filename+'initial_states_rays.csv', delimiter=',')
+  filenameIn = filename+'input_data_rays.csv'
+  filenameOut = filename+'output_data_rays.csv'
+
 
 """
 # Discrete time model of a quadcopter
@@ -63,9 +86,17 @@ R = 10
 N = 3
 """
 
+
 # Initial and reference states
 x0 = np.array([-4.5, 2.])
 xr = np.array([0.,0.])
+
+if n == 4:
+  print("n")
+  rows = initial_states.shape[0]
+  ridx = random.randint(0, rows-1)
+  x0 = initial_states[ridx,:]
+  xr = np.array([0., 0., 0., 0.])
 
 
 # Cast MPC problem to a QP: x = (x(0),x(1),...,x(N),u(0),...,u(N-1))
@@ -104,20 +135,6 @@ l_flat = l.flatten()
 u_flat = u.flatten()
 #size = P_flat.shape[0] + A_flat.shape[0] + q_flat.shape[0] + l_flat.shape[0] + u_flat.shape[0] + x0.shape[0]
 size = x0.shape[0]
-
-data_generation = 'grid'
-filenameIn = ''
-filenameOut = ''
-
-if data_generation == 'grid':
-  initial_states = np.loadtxt(filename+'initial_states_grid.csv', delimiter=',')
-  filenameIn = filename+'input_data_grid.csv'
-  filenameOut = filename+'output_data_grid.csv'
-
-elif data_generation == 'rays':
-  initial_states = np.loadtxt(filename+'initial_states_rays.csv', delimiter=',')
-  filenameIn = filename+'input_data_rays.csv'
-  filenameOut = filename+'output_data_rays.csv'
 
 
 nsim = initial_states.shape[0]

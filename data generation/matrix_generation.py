@@ -71,7 +71,7 @@ exD_A = np.array([[1, 1], [0, 1]])
 exD_B = np.array([[0], [1]])
 exD_xub = np.array([[5], [5]])
 exD_xlb = np.array([[-5], [-5]])
-exD_uub = np.array([-0.5])
+exD_uub = np.array([0.5])
 exD_ulb = np.array([-0.5])
 
 exD_N = np.array([3])
@@ -89,6 +89,47 @@ savetxt('exD_N.csv', exD_N, delimiter = ',')
 savetxt('exD_Q.csv', exD_Q, delimiter = ',')
 savetxt('exD_P.csv', exD_P, delimiter = ',')
 savetxt('exD_R.csv', exD_R, delimiter = ',')
+
+
+
+# Example E
+exE_A = np.array([ [0.7, -0.1, 0,   0 ],
+                   [0.2, -0.5, 0.1, 0 ],
+                   [0,    0.1, 0.1, 0 ],
+                   [0.5,  0,   0.5, 0.5]
+                    ])
+ 
+exE_A = np.array([[ 0.7,  -0.1,  0,    0 ], 
+                  [ 0.2,  -0.5,  0.1,  0  ],
+                  [ 0,    0.1,   0.1,  0  ],
+                  [ 0.5,  0,     0.5,  0.5 ]
+                  ])
+exE_B = np.array([[ 0,    0.1], 
+                  [ 0.1,  1. ],
+                  [ 0.1,  0. ],
+                  [ 0,    0  ]
+                   ])
+
+exE_xlb = np.array([[-6], [-6], [-1], [-0.5]])
+exE_xub = np.array([[6], [6], [1], [0.5]])
+exE_ulb = np.array([[-5], [-5]])
+exE_uub = np.array([[5], [5]])
+
+exE_N = np.array([10])
+exE_Q = np.eye(4)
+exE_P = exE_Q
+exE_R = np.eye(2)
+
+savetxt('exE_A.csv', exE_A, delimiter = ',')
+savetxt('exE_B.csv', exE_B, delimiter = ',')
+savetxt('exE_xub.csv', exE_xub, delimiter = ',')
+savetxt('exE_xlb.csv', exE_xlb, delimiter = ',')
+savetxt('exE_uub.csv', exE_uub, delimiter = ',')
+savetxt('exE_ulb.csv', exE_ulb, delimiter = ',')
+savetxt('exE_N.csv', exE_N, delimiter = ',')
+savetxt('exE_Q.csv', exE_Q, delimiter = ',')
+savetxt('exE_P.csv', exE_P, delimiter = ',')
+savetxt('exE_R.csv', exE_R, delimiter = ',')
 
 
 
