@@ -12,14 +12,17 @@ logging.getLogger().setLevel(logging.INFO)
 import statistics           
 from sklearn.model_selection import train_test_split
 import sys
+import matplotlib.pyplot as plt
 
 example = str(sys.argv[1]).upper()
+data_generation = str(sys.argv[2].lower())
+num_epochs = int(sys.argv[3])
 
 example_name = 'ex'+example
 filename = example_name+'_'
 
 # (GLOBAL) network settings
-num_epochs = 10
+#num_epochs = 200
 batch_size = 5
 learning_rate = 1e-4
 device = 'cpu'
@@ -203,8 +206,9 @@ if __name__ == "__main__":
     m = NN.problem_params['m']
 
     # data
-    X = torch.from_numpy(np.loadtxt(filename+'input_data_grid.csv', delimiter=','))
-    Y = torch.from_numpy(np.loadtxt(filename+'output_data_grid.csv', delimiter=',')[:,0:m])
+    f_in, f_out = filename+'input_data_'+data_generation+'.csv', filename+'output_data_'+data_generation+'.csv'
+    X = torch.from_numpy(np.loadtxt(f_in, delimiter=','))
+    Y = torch.from_numpy(np.loadtxt(f_out, delimiter=',')[:,0:m])
 
     # split data into training set and test set
     train, test = train_test_split(list(range(X.shape[0])), test_size=.25)
@@ -213,7 +217,6 @@ if __name__ == "__main__":
     ds = TensorDataset(X, Y)
 
     # define data loader
-    #train_set = DataLoader(ds, batch_size, shuffle=True)
     train_set = DataLoader(ds, batch_size=batch_size, sampler=SubsetRandomSampler(train))
     test_set = DataLoader(ds, batch_size=batch_size, sampler=SubsetRandomSampler(test))
 
@@ -256,6 +259,8 @@ if __name__ == "__main__":
             #all_losses.append(loss.item())
 
         mbl = np.mean(np.sqrt(batch_losses))
+        mbl = np.mean(batch_losses)
+        epochs_losses.append(mbl)
         if epoch % 2 == 0:
             print("Epoch [{}/{}], Batch loss: {}".format(epoch, num_epochs, mbl))
 
@@ -285,3 +290,17 @@ if __name__ == "__main__":
         #print("Batch loss: {}".format(test_loss.item()))
 
     print("Mean loss: ", statistics.mean(test_batch_losses))
+
+
+
+    # plot epochs losses
+    x = [i+1 for i in range(len(epochs_losses))]
+    plt.plot(x, epochs_losses, 'ro', linewidth=0.8, markersize=2)
+    xlabel = "Epochs"
+    ylabel = "MSE loss"
+    title = "Example {}, Data generation: {}".format(example, data_generation)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel) 
+
+    plt.show()

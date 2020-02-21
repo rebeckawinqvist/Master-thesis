@@ -38,7 +38,7 @@ if m == 1:
   Bd = np.expand_dims(B, axis=1)
 
 
-data_generation = 'grid'
+data_generation = 'har'
 filenameIn = ''
 filenameOut = ''
 
@@ -51,6 +51,12 @@ elif data_generation == 'rays':
   initial_states = np.loadtxt(filename+'initial_states_rays.csv', delimiter=',')
   filenameIn = filename+'input_data_rays.csv'
   filenameOut = filename+'output_data_rays.csv'
+
+elif data_generation == 'har':
+  initial_states = np.loadtxt(filename+'initial_states_har.csv', delimiter=',')
+  filenameIn = filename+'input_data_har.csv'
+  filenameOut = filename+'output_data_har.csv'
+
 
 
 """
