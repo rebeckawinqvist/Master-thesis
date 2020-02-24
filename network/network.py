@@ -267,7 +267,30 @@ if __name__ == "__main__":
     logging.info("  ---------- TRAINING COMPLETED ----------")
     
     # test the model
+
+    # plot if n = 2
+    n = NN.problem_params['n']
+    if n == 2:
+        xlb, xub = NN.problem_params['xlb'], NN.problem_params['xub']
+        x_start, x_stop = xlb[0], xub[0]
+        y_start, y_stop = xlb[1], xub[1]
+        H = NN.problem_params['H']
+        numOfCons = H.shape[0]
+
+        plt.axis([x_start-1,x_stop+1,y_start-1,y_stop+1])
+        x = np.linspace(x_start,x_stop,1000)
+        for i in range(numOfCons):
+            if H[i,1] != 0:
+                k = -H[i,0]/H[i,1]
+                m = H[i,2]/H[i,1]
+                f = k * x + m
+                plt.plot(x,f, '-k', linewidth=0.8, color='gainsboro')
+            else:
+                plt.axvline(x = H[i,2]/H[i,0], ymin=y_start, ymax=y_stop, linewidth=0.8, color='gainsboro')
+
+
     test_batch_losses = []
+    relative_losses = []
     for ix, (x, y) in enumerate(test_set):
         _x = Variable(x).float()
         _y = Variable(y).float()
@@ -287,8 +310,25 @@ if __name__ == "__main__":
         test_loss = criterion(test_output, _y)
 
         test_batch_losses.append(test_loss.item())
+
+        diff = (_y - test_output).detach().numpy()
+        abs_diff = np.absolute(diff)
+        rel_losses = np.divide(abs_diff,_y)
+
+        i = 0
+        for rel_loss in rel_losses:
+            if n == 2:
+                state = _x[i].numpy()
+                if abs(rel_loss) > 0.5:
+                    plt.plot(state[0], state[1], 'ro', linewidth=0.8, markersize=2)
+                else:
+                    plt.plot(state[0], state[1], 'go', linewidth=0.8, markersize=2)
+
+            relative_losses.append(rel_loss)
+            i += 1
         #print("Batch loss: {}".format(test_loss.item()))
 
+    plt.show()
     print("Mean loss: ", statistics.mean(test_batch_losses))
 
 
@@ -298,9 +338,28 @@ if __name__ == "__main__":
     plt.plot(x, epochs_losses, 'ro', linewidth=0.8, markersize=2)
     xlabel = "Epochs"
     ylabel = "MSE loss"
-    title = "Example {}, Data generation: {}".format(example, data_generation)
+    title = "Example {} \n Data generation: {}".format(example, data_generation.upper())
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel) 
 
+    filen_fig = filename+data_generation+("_epochs_{}".format(num_epochs))+".png"
+    plt.savefig(filen_fig)
     plt.show()
+
+
+    # plot test losses
+    x = [i+1 for i in range(len(relative_losses))]
+    plt.plot(x, relative_losses, 'ro', linewidth=0.8, markersize=2)
+    xlabel = "Test case"
+    ylabel = "Relative loss"
+    title = "Example {} \n Data generation: {} \n Epochs: {}".format(example, data_generation.upper(), num_epochs)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel) 
+
+    filen_fig = filename+data_generation+("_epochs_{}_test_losses".format(num_epochs))+".png"
+    plt.savefig(filen_fig)
+    plt.show()
+
+

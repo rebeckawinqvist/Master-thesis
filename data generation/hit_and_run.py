@@ -11,8 +11,8 @@ example_name = 'ex'+example
 filename = example_name+'_'
 
 def plot(H, x0, samples):
-    plt.axis([-6,6,-5,5])
-    x = np.linspace(-6,6,1000)
+    plt.axis([-6,6,-6,6])
+    x = np.linspace(-11,11,1000)
 
     for i in range(H.shape[0]):
         if H[i,1] != 0:
@@ -30,7 +30,16 @@ def plot(H, x0, samples):
 
 
     #plt.quiver(x0[0], x0[1], direction[0], direction[1], width=1/300)
+        
+    title = "Example {} \n HAR {} samples".format(example, len(samples))
+    xlabel = "$x_1$"
+    ylabel = "$x_2$"
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel) 
+    filen_fig = filename+"har"+("_samples_{}".format(len(samples)))+".png"
 
+    plt.savefig(filen_fig)
     plt.show()
 
 
@@ -43,14 +52,15 @@ if __name__ == "__main__":
     polytope = Polytope(A, b, V)
     if polytope.n == 4:
         x0 = np.array([-2, -5.3, 1, 0.5])
-    n_samples = 1000
+    n_samples = 10000
 
     har = HAR(polytope, x0, n_samples)
 
     har.get_samples()
-    np.savetxt(filename+'initial_states_har.csv', har.samples, delimiter=",")
+    np.savetxt(filename+"initial_states_har_{}.csv".format(n_samples), har.samples, delimiter=",")
 
-    #plot(H, x0, har.samples)
+    if polytope.n <= 2:
+        plot(H, x0, har.samples)
 
 
 

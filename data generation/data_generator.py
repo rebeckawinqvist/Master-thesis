@@ -7,6 +7,7 @@ import sys
 import random
 
 example = str(sys.argv[1]).upper()
+data_generation = str(sys.argv[2].lower())
 
 example_name = 'ex'+example
 filename = example_name+'_'
@@ -38,22 +39,21 @@ if m == 1:
   Bd = np.expand_dims(B, axis=1)
 
 
-data_generation = 'har'
 filenameIn = ''
 filenameOut = ''
 
-if data_generation == 'grid':
+if data_generation == "grid":
   initial_states = np.loadtxt(filename+'initial_states_grid.csv', delimiter=',')
   filenameIn = filename+'input_data_grid.csv'
   filenameOut = filename+'output_data_grid.csv'
 
-elif data_generation == 'rays':
+elif data_generation == "rays":
   initial_states = np.loadtxt(filename+'initial_states_rays.csv', delimiter=',')
   filenameIn = filename+'input_data_rays.csv'
   filenameOut = filename+'output_data_rays.csv'
 
-elif data_generation == 'har':
-  initial_states = np.loadtxt(filename+'initial_states_har.csv', delimiter=',')
+elif data_generation == "har":
+  initial_states = np.loadtxt(filename+'initial_states_har_1000.csv', delimiter=',')
   filenameIn = filename+'input_data_har.csv'
   filenameOut = filename+'output_data_har.csv'
 
