@@ -5,9 +5,10 @@ from scipy import sparse
 from numpy import savetxt, loadtxt
 import sys
 import random
+from polytope import Polytope
 
 example = str(sys.argv[1]).upper()
-data_generation = str(sys.argv[2].lower())
+sampling_method = str(sys.argv[2].lower())
 
 example_name = 'ex'+example
 filename = example_name+'_'
@@ -35,6 +36,10 @@ umin, umax = ulb, uub
 Ad, Bd = A,B
 nx, nu = n, m
 
+# system dynamics
+A_sys, B_sys = A, B
+
+
 if m == 1:
   Bd = np.expand_dims(B, axis=1)
 
@@ -42,18 +47,18 @@ if m == 1:
 filenameIn = ''
 filenameOut = ''
 
-if data_generation == "grid":
+if sampling_method == "grid":
   initial_states = np.loadtxt(filename+'initial_states_grid.csv', delimiter=',')
   filenameIn = filename+'input_data_grid.csv'
   filenameOut = filename+'output_data_grid.csv'
 
-elif data_generation == "rays":
+elif sampling_method == "rays":
   initial_states = np.loadtxt(filename+'initial_states_rays.csv', delimiter=',')
   filenameIn = filename+'input_data_rays.csv'
   filenameOut = filename+'output_data_rays.csv'
 
-elif data_generation == "har":
-  initial_states = np.loadtxt(filename+'initial_states_har_1000.csv', delimiter=',')
+elif sampling_method == "har":
+  initial_states = np.loadtxt(filename+'initial_states_har.csv', delimiter=',')
   filenameIn = filename+'input_data_har.csv'
   filenameOut = filename+'output_data_har.csv'
 
@@ -144,8 +149,8 @@ size = x0.shape[0]
 
 
 nsim = initial_states.shape[0]
-feed_data = np.zeros((nsim, size))
-result_data = np.zeros((nsim, N*nu))
+states = np.zeros((nsim, size))
+control_inputs = np.zeros((nsim, N*nu))
 
 i = 0
 for row in initial_states:
@@ -169,8 +174,8 @@ for row in initial_states:
   
   # Save data
   in_data = x0
-  feed_data[i,:] = in_data
-  result_data[i,:] = u_res
+  states[i,:] = in_data
+  control_inputs[i,:] = u_res
 
   # update initial state
 
@@ -179,5 +184,48 @@ for row in initial_states:
     break
 
 
-savetxt(filenameIn, feed_data, delimiter = ',')
-savetxt(filenameOut, result_data, delimiter = ',')
+
+# -------------------------------------------------
+# ----------------- VERIFY DATA ------------------- 
+# -------------------------------------------------
+first_input = control_inputs[:,0:m]
+
+A_p = H[:,0:-1]
+b_p = H[:,-1]
+polytope = Polytope(A_p, b_p)
+
+feasible_states = []
+feasible_inputs = []
+infeasible_states = []
+infeasible_transitions = []
+
+for (x, u_N) in zip(states, control_inputs):
+  # check current state
+  x = np.array(x)
+  u = np.array(u_N[0:m])
+  if not polytope.is_inside(x):
+    print("State not inside: ", x, "\n")
+
+  else:
+    # check next state
+    if m == 1:
+      x1 = A_sys @ x + B_sys * u
+    else:
+      x1 = A_sys @ x + B_sys @ u
+    if not polytope.is_inside(x1):
+      #print("Next state not inside. \nx:\n {}, \nx1:\n {}".format(x, x1))
+      infeasible_states.append(x1)
+      infeasible_transitions.append((x,u))
+    else:
+      feasible_states.append(x)
+      feasible_inputs.append(u_N)
+
+if n <= 2:
+  polytope.plot_poly(xlb, xub, infeasible_states = infeasible_states)
+
+
+print("Infeasible data [%]: ", 100*len(infeasible_states)/len(states))
+print("Data kept [%]: ", 100*len(feasible_states)/len(states))
+
+savetxt(filenameIn, feasible_states, delimiter = ',')
+savetxt(filenameOut, feasible_inputs, delimiter = ',')
