@@ -33,20 +33,27 @@ if plot:
             k = -CinfH[i,0]/CinfH[i,1]
             m = CinfH[i,2]/CinfH[i,1]
             f = k * x + m
-            plt.plot(x,f, '-k', linewidth=linewidth, color='gainsboro')
+            plt.plot(x,f, '-k', linewidth=linewidth, color='gray')
         else:
-            plt.axvline(x = CinfH[i,2]/CinfH[i,0], ymin=y_start, ymax=y_stop, linewidth=linewidth, color='gainsboro')
+            plt.axvline(x = CinfH[i,2]/CinfH[i,0], ymin=y_start, ymax=y_stop, linewidth=linewidth, color='gray')
 
 
     # plot vertices
     for i in range(points.shape[0]):
         x1 = points[i,0]
         y1 = points[i,1]
-        plt.plot(x1,y1, 'ko', linewidth=linewidth, markersize=2)
+        plt.plot(x1,y1, 'ko', linewidth=linewidth, markersize=4)
+    
 
     # plot initial state
-    plt.plot(x0, y0, 'o', markersize=4, color='firebrick')
+    #plt.plot(x0, y0, 'o', markersize=4, color='firebrick')
 
+    title = "Example {}: ".format(example)+'$C{_\infty}$'
+    xlabel = "$x_1$"
+    ylabel = "$x_2$"
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel) 
 
     plt.show()
 

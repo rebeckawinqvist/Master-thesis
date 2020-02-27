@@ -56,8 +56,8 @@ if __name__ == "__main__":
 
     har = HAR(polytope, x0, n_samples)
 
-    har.get_samples()
-    np.savetxt(filename+"initial_states_har_{}.csv".format(n_samples), har.samples, delimiter=",")
+    har.sample()
+    np.savetxt(filename+"initial_states_har.csv", har.samples, delimiter=",")
 
     if polytope.n <= 2:
         plot(H, x0, har.samples)

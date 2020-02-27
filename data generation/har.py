@@ -21,7 +21,7 @@ class HAR(object):
         self.current = x0
 
 
-    def get_samples(self, n_samples=None, thin=None):
+    def sample(self, n_samples=None, thin=None):
         self.samples = []
 
         if n_samples is not None:
@@ -62,9 +62,9 @@ class HAR(object):
         lambda_range = np.linspace(lambda_min, lambda_max, 1000)
         for i in range(len(lambda_range)-1):
             l = lambda_range[i]
-            next = self.current + l * self.direction
+            next_point = self.current + l * self.direction
             # check constraints
-            if self.polytope.is_inside(next):
+            if self.polytope.is_inside(next_point):
                 self.lambdas.append(l)
 
 

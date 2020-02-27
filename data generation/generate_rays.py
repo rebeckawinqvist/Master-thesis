@@ -45,7 +45,7 @@ if plot:
         plt.plot(x1,y1, 'ko', linewidth=linewidth, markersize=2)
 
     # plot initial state
-    plt.plot(x0, y0, 'o', markersize=4, color='firebrick')
+    #plt.plot(x0, y0, 'o', markersize=4, color='firebrick')
 
 
     # plot lines between vertices and initial state
@@ -62,7 +62,7 @@ if plot:
             continue
         params = [k, m, x0, xV, y0, yV]
         lines.append(params)
-        plt.plot(x,y, linewidth=linewidth, color='firebrick')
+        plt.plot(x,y, linewidth=linewidth, color='green')
 
     # plot additional points on lines
     addPoints = []
@@ -85,7 +85,15 @@ if plot:
     
     # plot points
     for p in addPoints:
-        plt.plot(p[0], p[1], 'bo', markersize=1)
+        plt.plot(p[0], p[1], 'go', markersize=3)
+
+    
+    title = "Example {} ".format(example)
+    xlabel = "$x_1$"
+    ylabel = "$x_2$"
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
 
     plt.show()
 
