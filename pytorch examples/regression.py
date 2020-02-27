@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import torch.functional as F
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import TensorDataset, DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 
 import numpy as np
@@ -10,17 +10,23 @@ from sklearn.datasets import load_boston
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
-X, y = load_boston(return_X_y=True)
+#X, y = load_boston(return_X_y=True)
+data_generation = 'grid'
+filename = 'exA_'
+f_in, f_out = filename+'input_data_'+data_generation+'.csv', filename+'output_data_'+data_generation+'.csv'
+X = torch.from_numpy(np.loadtxt(f_in, delimiter=','))
+y = torch.from_numpy(np.loadtxt(f_out, delimiter=',')[:,0:1])
 
 # create train and test indices
-train, test = train_test_split(list(range(X.shape[0])), test_size=.3)
+train, test = train_test_split(list(range(X.shape[0])), test_size=.25)
 
-input_size = 13
-hidden_layer_size = 300
+input_size = 2
+hidden_layer_size = 8
 learning_rate = 0.05
 batch_size = 50
 num_epochs = 100
 
+"""
 class PrepareData(Dataset):
 
     def __init__(self, X, y, scale_X=True):
@@ -36,8 +42,10 @@ class PrepareData(Dataset):
 
     def __getitem__(self, idx):
         return self.X[idx], self.y[idx]
+"""
 
-ds = PrepareData(X, y=y, scale_X=True)
+#ds = PrepareData(X, y=y, scale_X=True)
+ds = TensorDataset(X,y)
 
 train_set = DataLoader(ds, batch_size=batch_size,
                        sampler=SubsetRandomSampler(train))
@@ -50,14 +58,15 @@ class RegressionModel(nn.Module):
         super(RegressionModel, self).__init__()
         self.dense_h1 = nn.Linear(in_features=input_size, out_features=hidden_size)
         self.relu_h1 = nn.ReLU()
-        self.dropout = nn.Dropout(p=0.5)
+        #self.dropout = nn.Dropout(p=0.5)
         self.dense_out = nn.Linear(in_features=hidden_size, out_features=1)
 
     def forward(self, X):
 
         out = self.relu_h1(self.dense_h1(X))
-        out = self.dropout(out)
-        out = self.dense_out(out)
+        #out = self.dropout(out)
+        out = self.relu_h1(self.dense_out(out))
+
 
         return out
 
@@ -74,8 +83,6 @@ for e in range(num_epochs):
 
         _X = Variable(Xb).float()
         _y = Variable(yb).float()
-
-        print("X:", "\n", _X, "Y: \n", _y)
 
         #==========Forward pass===============
 
@@ -97,9 +104,9 @@ for e in range(num_epochs):
         print("Epoch [{}/{}], Batch loss: {}".format(e, num_epochs, mbl))
 
 # prepares model for inference when trained with a dropout layer
-print(m.training)
-m.eval()
-print(m.training)
+#print(m.training)
+#m.eval()
+#print(m.training)
 
 test_batch_losses = []
 for _X, _y in test_set:

@@ -46,13 +46,13 @@ class Network(nn.Module):
         for i in range(L):
             if i == L-1:
                 # last relu layer
-                fc = nn.Linear(self.hidden_list[i], self.n_outputs)
+                fc = nn.Linear(self.hidden_list[i], self.n_outputs, bias=True)
             else:
-                fc = nn.Linear(self.hidden_list[i], self.hidden_list[i+1])
+                fc = nn.Linear(self.hidden_list[i], self.hidden_list[i+1], bias=True)
         
             layers.append(fc)
 
-        self.reluLayers = nn.ModuleList(layers)
+        self.layers = nn.ModuleList(layers)
 
         # cvxpy-layer
         self.cvxpy_layer = self.create_cvxpylayer()
@@ -94,15 +94,23 @@ class Network(nn.Module):
         f = cp.Parameter((num_constraints, 1))
         G = cp.Parameter((2*m, m))
         h = cp.Parameter((2*m, 1))
-        u = cp.Parameter((m, 1))      
+        u = cp.Parameter((m, 1))   
+
+        E.requires_grad = False
+        f.requires_grad = False
+        G.requires_grad = False
+        h.requires_grad = False
+        u.requires_grad = False   
 
         obj = cp.Minimize(cp.sum_squares(u-u_p))
-        cons = [E @ u_p <= f, G @ u_p <= h]
+        #cons = [E @ u_p <= f, G @ u_p <= h]
+        cons = [G @ u_p <= h]
         problem = cp.Problem(obj, cons)
         assert problem.is_dpp() 
         assert problem.is_dcp()
 
-        layer = CvxpyLayer(problem, parameters = [E, f, G, h, u], variables = [u_p])
+        #layer = CvxpyLayer(problem, parameters = [E, f, G, h, u], variables = [u_p])
+        layer = CvxpyLayer(problem, parameters = [G, h, u], variables = [u_p])
         logging.info("  ---------- CVXPY-LAYER CONSTRUCTED ----------")
 
         return layer
@@ -111,8 +119,13 @@ class Network(nn.Module):
     def forward(self, x):
         u = torch.from_numpy(x.numpy().astype(np.float)).float()
         m = self.problem_params['m']
-        for layer in self.reluLayers:
+        #u = F.relu(self.reluLayers[0](u))
+        #u = F.sigmoid(self.reluLayers[1](u))
+        
+        for layer in self.layers[0:-1]:
             u = F.relu(layer(u))
+
+        u = self.layers[-1](u)
 
         """
         # ====================================================================
@@ -127,10 +140,11 @@ class Network(nn.Module):
         #u.expand(batch_size,m,1)
 
         # projection/cvxpy-layer
-        E, f, G, h, u_p = self.get_tensors(x, u)
-        
+        E, f, G, h, u = self.get_tensors(x, u)
+        #u, self.cvxpy_layer(E, f, G, h, u)
+        u, = self.cvxpy_layer(G, h, u)
 
-        return u_p
+        return u
 
 
     def get_tensors(self, states, u_param):
@@ -139,6 +153,7 @@ class Network(nn.Module):
             Gu^p <= h 
         """
 
+        # batch size (last training/test batch is sometimes smaller than set batch size)
         bs = u_param.shape[0]
         # constraints
         m = self.problem_params['m']
@@ -155,7 +170,7 @@ class Network(nn.Module):
 
         Cc = H[:,0:-1]
         dc = H[:,-1]
-        Cu = np.kron(np.eye(m),np.array([[1.], [-1.]]))
+        #Cu = np.kron(np.eye(m),np.array([[1.], [-1.]]))
         Cu = np.vstack((np.eye(m), -np.eye(m)))
         du = np.vstack((uub, -ulb))
 
@@ -174,7 +189,7 @@ class Network(nn.Module):
 
 
         for i in range(bs):
-            f_tilde = dc - D_tilde @ states[i,:].detach().numpy()
+            f_tilde = dc - D_tilde @ states[i,:].data.numpy()
             f_tilde = np.expand_dims(f_tilde, axis=1)
 
             E[i] = torch.from_numpy(E_tilde).float()
@@ -186,10 +201,10 @@ class Network(nn.Module):
         u = u_param
 
         # don't need to learn these, these are fixed
-        E.requires_grad = False
-        f.requires_grad = False
-        G.requires_grad = False
-        h.requires_grad = False
+        #E.requires_grad = False
+        #f.requires_grad = False
+        #G.requires_grad = False
+        #h.requires_grad = False
         #u.requires_grad = False
 
         return E, f, G, h, u
@@ -201,6 +216,7 @@ if __name__ == "__main__":
     # define network
     print("\nRunning example: " + example + "\n")
     NN = Network([8,8])
+    #NN.load_state_dict(torch.load('saved_model.pt'), strict=False)
     optimizer = torch.optim.Adam(NN.parameters(), lr = learning_rate)
     NN.to(device)
     m = NN.problem_params['m']
@@ -255,6 +271,13 @@ if __name__ == "__main__":
             loss.backward()
             optimizer.step()
 
+            """
+            for p in NN.parameters():
+                if p.grad is not None:
+                    print(p)
+            """
+
+
             batch_losses.append(loss.item())
             #all_losses.append(loss.item())
 
@@ -265,6 +288,9 @@ if __name__ == "__main__":
             print("Epoch [{}/{}], Batch loss: {}".format(epoch, num_epochs, mbl))
 
     logging.info("  ---------- TRAINING COMPLETED ----------")
+
+    
+    #torch.save(NN.state_dict(), 'saved_model.pt')
     
     # test the model
 
@@ -291,7 +317,7 @@ if __name__ == "__main__":
 
     test_batch_losses = []
     relative_losses = []
-    for ix, (x, y) in enumerate(test_set):
+    for ix, (x, y) in enumerate(train_set):
         _x = Variable(x).float()
         _y = Variable(y).float()
         _y = _y.unsqueeze(-1)
@@ -313,7 +339,7 @@ if __name__ == "__main__":
 
         diff = (_y - test_output).detach().numpy()
         abs_diff = np.absolute(diff)
-        rel_losses = np.divide(abs_diff,_y)
+        rel_losses = np.divide(abs_diff,np.absolute(_y))
 
         i = 0
         for rel_loss in rel_losses:
@@ -321,6 +347,7 @@ if __name__ == "__main__":
                 state = _x[i].numpy()
                 if abs(rel_loss) > 0.5:
                     plt.plot(state[0], state[1], 'ro', linewidth=0.8, markersize=2)
+                    #print(test_output[i].data, _y[i].data)
                 else:
                     plt.plot(state[0], state[1], 'go', linewidth=0.8, markersize=2)
 
@@ -328,6 +355,14 @@ if __name__ == "__main__":
             i += 1
         #print("Batch loss: {}".format(test_loss.item()))
 
+    title = "Example {} ".format(example)
+    xlabel = "$x_1$"
+    ylabel = "$x_2$"
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    filen_fig = filename+data_generation+("_bad_good_points")+".png"
+    plt.savefig(filen_fig)
     plt.show()
     print("Mean loss: ", statistics.mean(test_batch_losses))
 
