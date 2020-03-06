@@ -2,6 +2,7 @@ from scipy.stats import uniform
 import numpy as np
 from scipy.spatial.distance import norm
 import random
+import math
 
 class HAR(object):
 
@@ -37,10 +38,9 @@ class HAR(object):
 
     def make_step(self):
         self.get_direction()
-        l = self.get_distance()
+        next_sample = self.get_random_point()
 
-        next = self.current + l * self.direction
-        self.current = next
+        self.current = next_sample
 
 
     def get_direction(self):
@@ -48,26 +48,44 @@ class HAR(object):
         self.direction = direction/norm(direction)
 
 
-    def get_distance(self):
-        self.set_lambdas()
-        l = random.choice(self.lambdas)
-        return l
+    def get_random_point(self):
+        A = self.polytope.A
+        b = self.polytope.b
 
-    
-    def set_lambdas(self):
-        self.lambdas = []
-        lambda_min = 0
-        lambda_max = 10
+        closest_point = None
+        closest_dist = np.inf
 
-        lambda_range = np.linspace(lambda_min, lambda_max, 1000)
-        for i in range(len(lambda_range)-1):
-            l = lambda_range[i]
-            next_point = self.current + l * self.direction
-            # check constraints
-            if self.polytope.is_inside(next_point):
-                self.lambdas.append(l)
+        k,m = 0,0
+        if self.direction[0] != 0:
+            k = self.direction[1]/self.direction[0]
+            m = self.current[1] - k*self.current[0]
+        else:
+            k = -1
+            m = self.current[0]
 
+        for (params, cons) in zip(A,b):
+            G = np.array([[-k, 1], [params[0], params[1]]])
+            h = np.array([[m], [cons]])
+            x = np.linalg.solve(G,h).flatten()
 
+            # check direction
+            d = x - self.current
+            d = d/norm(d)
+            ang = np.arccos(round(np.dot(d, self.direction)))
+            if ang == 0:
+                # right direction
+                dist = math.hypot(x[0]-self.current[0], x[1]-self.current[1])
+                if dist < closest_dist:
+                    closest_point = x
+                    closest_dist = dist
+
+        lb = min(closest_point[0], self.current[0])
+        ub = max(closest_point[0], self.current[0])
+        x1_new = np.random.uniform(lb, ub)
+        x2_new = k*x1_new + m
+
+        sample = np.array([x1_new, x2_new])
+        return sample
 
 
 

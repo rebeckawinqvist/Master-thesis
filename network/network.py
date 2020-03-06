@@ -103,14 +103,14 @@ class Network(nn.Module):
         u.requires_grad = False   
 
         obj = cp.Minimize(cp.sum_squares(u-u_p))
-        #cons = [E @ u_p <= f, G @ u_p <= h]
-        cons = [G @ u_p <= h]
+        cons = [E @ u_p <= f, G @ u_p <= h]
+        #cons = [G @ u_p <= h]
         problem = cp.Problem(obj, cons)
         assert problem.is_dpp() 
         assert problem.is_dcp()
 
-        #layer = CvxpyLayer(problem, parameters = [E, f, G, h, u], variables = [u_p])
-        layer = CvxpyLayer(problem, parameters = [G, h, u], variables = [u_p])
+        layer = CvxpyLayer(problem, parameters = [E, f, G, h, u], variables = [u_p])
+        #layer = CvxpyLayer(problem, parameters = [G, h, u], variables = [u_p])
         logging.info("  ---------- CVXPY-LAYER CONSTRUCTED ----------")
 
         return layer
@@ -141,8 +141,11 @@ class Network(nn.Module):
 
         # projection/cvxpy-layer
         E, f, G, h, u = self.get_tensors(x, u)
-        #u, self.cvxpy_layer(E, f, G, h, u)
-        u, = self.cvxpy_layer(G, h, u)
+        #print("A: \n", E, "\nb: ", f, "\n")
+        #print("x: \n", x, "\nu: \n", u, "\n")
+        #print(E@u <= f)
+        u, self.cvxpy_layer(E, f, G, h, u, solver_args={'verbose': True, 'max_iters': 4000000})
+        #u, = self.cvxpy_layer(G, h, u)
 
         return u
 
@@ -322,6 +325,8 @@ if __name__ == "__main__":
         _y = Variable(y).float()
         _y = _y.unsqueeze(-1)
         #_y.expand(batch_size,m,1)
+        if _y.shape[0] != batch_size:
+            continue
         """
         y = np.expand_dims(y, axis=1)
         y_t = torch.zeros([batch_size, NN.problem_params['m'], 1])
@@ -354,6 +359,7 @@ if __name__ == "__main__":
             relative_losses.append(rel_loss)
             i += 1
         #print("Batch loss: {}".format(test_loss.item()))
+
 
     title = "Example {} ".format(example)
     xlabel = "$x_1$"
