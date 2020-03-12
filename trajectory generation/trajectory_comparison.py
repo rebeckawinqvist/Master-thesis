@@ -10,7 +10,8 @@ if __name__ == "__main__":
     ntrajs = int(sys.argv[2])
     N = int(sys.argv[3])
     example_name = 'ex'+example
-    filename = example_name+'_'
+    folder_name = 'ex'+example+'/'
+    filename = folder_name+example_name+'_'
 
     H = np.loadtxt(filename+'cinfH.csv', delimiter=',')
     V = np.loadtxt(filename+'cinfV.csv', delimiter=',')
@@ -27,6 +28,7 @@ if __name__ == "__main__":
         traj_proj_NN = np.loadtxt(filename+'projNN_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
         traj_noproj_NN = np.loadtxt(filename+'noprojNN_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
         traj_mpc = np.loadtxt(filename+'mpc_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
+        traj_lqr_proj_NN = np.loadtxt(filename+'lqr_projNN_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
 
         #trajs = [traj_proj_NN, traj_noproj_NN, traj_mpc]
         #names = ["Proj NN", "NoProj NN", "MPC"]
@@ -38,8 +40,9 @@ if __name__ == "__main__":
             plt.subplot(1,2,1)
             polytope.plot_poly(xlb, xub, show=False)
             plt.scatter(traj_noproj_NN[:,0], traj_noproj_NN[:,1], color='r', label="NoProj NN")
+            plt.scatter(traj_lqr_proj_NN[:,0], traj_lqr_proj_NN[:,1], color='g', label="LQR NN")
             plt.scatter(traj_proj_NN[:,0], traj_proj_NN[:,1], color='b', label="Proj NN")
-            plt.scatter(traj_mpc[:,0], traj_mpc[:,1], color='g', label="MPC")
+            #plt.scatter(traj_mpc[:,0], traj_mpc[:,1], color='g', label="MPC")
             plt.legend()
 
             title = "Example {} \n Sample: {} \n ".format(example,i+1)
@@ -59,8 +62,9 @@ if __name__ == "__main__":
             plt.subplot(1,2,2)
             polytope.plot_poly(xlb, xub, show=False)
             plt.plot(traj_noproj_NN[:,0], traj_noproj_NN[:,1], color='r', label="NoProj NN")
+            plt.plot(traj_lqr_proj_NN[:,0], traj_lqr_proj_NN[:,1], color='g', label="LQR NN")
             plt.plot(traj_proj_NN[:,0], traj_proj_NN[:,1], color='b', label="Proj NN")
-            plt.plot(traj_mpc[:,0], traj_mpc[:,1], color='g', label="MPC")
+            #plt.plot(traj_mpc[:,0], traj_mpc[:,1], color='g', label="MPC")
             plt.legend()
 
             title = "Example {} \n Sample: {} \n ".format(example,i+1)

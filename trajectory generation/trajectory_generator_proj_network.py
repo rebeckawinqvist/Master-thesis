@@ -20,7 +20,8 @@ ntrajs = int(sys.argv[2])
 N = int(sys.argv[3])
 
 example_name = 'ex'+example
-filename = example_name+'_'
+folder_name = 'ex'+example+'/'
+filename = folder_name+example_name+'_'
 
 # (GLOBAL) network settings
 #num_epochs = 200
@@ -125,11 +126,11 @@ class Network(nn.Module):
 
         u = self.layers[-1](u)
 
-        u = u.unsqueeze(-1)
+        u = u.unsqueeze(-1).unsqueeze(0)
 
         # projection/cvxpy-layer
         E, f, G, h, u = self.get_tensors(x, u)
-        u = u.unsqueeze(-1)
+        #u = u.unsqueeze(-1)
         u, self.cvxpy_layer(E, f, G, h, u, solver_args={'verbose': False, 'max_iters': 4000000})
 
         return u
@@ -195,7 +196,7 @@ if __name__ == "__main__":
     # define network
     print("\nRunning example: " + example + "\n")
     NN = Network([8,8])
-    NN.load_state_dict(torch.load('proj_network_model.pt'))
+    NN.load_state_dict(torch.load(filename+'proj_network_model.pt'))
     optimizer = torch.optim.Adam(NN.parameters(), lr = learning_rate)
     NN.to(device)
     m, n = NN.problem_params['m'], NN.problem_params['n']
@@ -229,7 +230,7 @@ if __name__ == "__main__":
             
             traj.append(x1)
             traj_matrix[i+1,:] = x1
-            u_matrix[i,:] = u.data.numpy()
+            u_matrix[i,:] = u.data.numpy().flatten()
             x0 = torch.from_numpy(x1).float()
 
 

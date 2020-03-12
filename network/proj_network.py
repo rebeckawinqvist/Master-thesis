@@ -19,7 +19,8 @@ data_generation = str(sys.argv[2].lower())
 num_epochs = int(sys.argv[3])
 
 example_name = 'ex'+example
-filename = example_name+'_'
+folder_name = 'ex'+example+'/'
+filename = folder_name+example_name+'_'
 
 # (GLOBAL) network settings
 #num_epochs = 200
@@ -294,7 +295,7 @@ if __name__ == "__main__":
 
     
     """ UNCOMMENT TO SAVE MODEL """
-    #torch.save(NN.state_dict(), 'proj_network_model.pt')
+    torch.save(NN.state_dict(), filename+'proj_network_model.pt')
     
     # test the model
 

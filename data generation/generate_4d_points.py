@@ -7,7 +7,8 @@ import sys
 example = str(sys.argv[1]).upper()
 
 example_name = 'ex'+example
-filename = example_name+'_'
+folder_name = 'ex'+example+'/'
+filename = folder_name+example_name+'_'
 
 CinfH = loadtxt(filename+'cinfH.csv', delimiter = ',')
 xlb = np.loadtxt(filename+'xlb.csv', delimiter=',')

@@ -19,7 +19,8 @@ data_generation = str(sys.argv[2].lower())
 num_epochs = int(sys.argv[3])
 
 example_name = 'ex'+example
-filename = example_name+'_'
+folder_name = 'ex'+example+'/'
+filename = folder_name+example_name+'_'
 
 # (GLOBAL) network settings
 #num_epochs = 200
@@ -153,7 +154,7 @@ if __name__ == "__main__":
 
 
     """ UNCOMMENT TO SAVE MODEL"""
-    #torch.save(NN.state_dict(), 'noproj_network_model.pt')
+    torch.save(NN.state_dict(), filename+'noproj_network_model.pt')
     
     # test the model
 
@@ -212,15 +213,16 @@ if __name__ == "__main__":
         #print("Batch loss: {}".format(test_loss.item()))
 
 
-    title = "NoProj Example {} ".format(example)
-    xlabel = "$x_1$"
-    ylabel = "$x_2$"
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    filen_fig = filename+data_generation+("_bad_good_points")+"_noproj.png"
-    plt.savefig(filen_fig)
-    plt.show()
+    if n <= 2:
+        title = "NoProj Example {} ".format(example)
+        xlabel = "$x_1$"
+        ylabel = "$x_2$"
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        filen_fig = filename+data_generation+("_bad_good_points_noproj.png")
+        plt.savefig(filen_fig)
+        plt.show()
     print("Mean loss: ", statistics.mean(test_batch_losses))
 
 
@@ -235,23 +237,24 @@ if __name__ == "__main__":
     plt.xlabel(xlabel)
     plt.ylabel(ylabel) 
 
-    filen_fig = filename+data_generation+("_epochs_{}".format(num_epochs))+"_noproj.png"
+    filen_fig = filename+data_generation+("_epochs_{}_noproj.png".format(num_epochs))
     plt.savefig(filen_fig)
     plt.show()
 
 
-    # plot test losses
-    x = [i+1 for i in range(len(relative_losses))]
-    plt.plot(x, relative_losses, 'ro', linewidth=0.8, markersize=2)
-    xlabel = "Test case"
-    ylabel = "Relative loss"
-    title = "NoProj Example {} \n Data generation: {} \n Epochs: {}".format(example, data_generation.upper(), num_epochs)
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel) 
+    if n <= 2:
+        # plot test losses
+        x = [i+1 for i in range(len(relative_losses))]
+        plt.plot(x, relative_losses, 'ro', linewidth=0.8, markersize=2)
+        xlabel = "Test case"
+        ylabel = "Relative loss"
+        title = "NoProj Example {} \n Data generation: {} \n Epochs: {}".format(example, data_generation.upper(), num_epochs)
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel) 
 
-    filen_fig = filename+data_generation+("_epochs_{}_test_losses_noproj".format(num_epochs))+".png"
-    plt.savefig(filen_fig)
-    plt.show()
+        filen_fig = filename+data_generation+("_epochs_{}_test_losses_noproj.png".format(num_epochs))
+        plt.savefig(filen_fig)
+        plt.show()
 
 

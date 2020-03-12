@@ -21,7 +21,8 @@ N = int(sys.argv[3])
 
 
 example_name = 'ex'+example
-filename = example_name+'_'
+folder_name = 'ex'+example+'/'
+filename = folder_name+example_name+'_'
 
 # (GLOBAL) network settings
 #num_epochs = 200
@@ -100,7 +101,7 @@ if __name__ == "__main__":
     # define network
     print("\nRunning example: " + example + "\n")
     NN = Network([8,8])
-    NN.load_state_dict(torch.load('noproj_network_model.pt'))
+    NN.load_state_dict(torch.load(filename+'noproj_network_model.pt'))
     optimizer = torch.optim.Adam(NN.parameters(), lr = learning_rate)
     NN.to(device)
     m, n = NN.problem_params['m'], NN.problem_params['n']

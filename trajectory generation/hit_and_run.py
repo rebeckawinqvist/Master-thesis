@@ -14,7 +14,8 @@ if __name__ == "__main__":
     nsamples = int(sys.argv[2])
 
     example_name = 'ex'+example
-    filename = example_name+'_'
+    folder_name = 'ex'+example+'/'
+    filename = folder_name+example_name+'_'
 
     H = np.loadtxt(filename+'cinfH.csv', delimiter=',')
     V = np.loadtxt(filename+'cinfV.csv', delimiter=',')
@@ -23,9 +24,15 @@ if __name__ == "__main__":
     A = H[:,0:-1]
     B = H[:,-1]
     polytope = Polytope(A,B,V)
+
     x0 = np.array([-4.5, 2])
+    samples = [x0]
+    n_samples = nsamples
+
     if polytope.n == 4:
-        x0 = np.array([-2, -5.3, 1, 0.5])
+        x0 = np.array([0, 0, 0, 0])
+        samples = []
+        n_samples = nsamples+1
 
     plot_and_save = False
     if polytope.n <= 2:
@@ -36,8 +43,7 @@ if __name__ == "__main__":
 
     #plt.arrow(x0[0], x0[1], direction[0], direction[1], head_width=0.1, head_length=0.05)
 
-    samples = [x0]
-    for n in range(nsamples-1):
+    for n in range(n_samples-1):
         direction = np.random.randn(polytope.n)
         direction = direction/norm(direction)
         
@@ -79,7 +85,16 @@ if __name__ == "__main__":
 
         plt.show()
 
-    np.savetxt(filename+"initial_states_{}.csv".format(nsamples), samples, delimiter=",")
+
+    feasible_samples = []
+    for sample in samples: 
+        if polytope.is_inside(sample):
+            feasible_samples.append(sample)
+
+    print("Infeasible samples: [%]: ", len(feasible_samples)/len(samples))
+    print("Kept samples: ", len(feasible_samples),"/",len(samples))
+
+    np.savetxt(filename+"initial_states_{}.csv".format(nsamples), feasible_samples, delimiter=",")
     
 
 

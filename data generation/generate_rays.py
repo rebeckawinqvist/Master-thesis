@@ -7,7 +7,8 @@ import sys
 example = str(sys.argv[1]).upper()
 
 example_name = 'ex'+example
-filename = example_name+'_'
+folder_name = 'ex'+example+'/'
+filename = folder_name+example_name+'_'
 
 points = loadtxt(filename+'cinfV.csv', delimiter = ',')
 CinfH = loadtxt(filename+'cinfH.csv', delimiter = ',')

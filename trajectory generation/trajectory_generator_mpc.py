@@ -13,7 +13,8 @@ ntrajs = int(sys.argv[2])
 NT = int(sys.argv[3])
 
 example_name = 'ex'+example
-filename = example_name+'_'
+folder_name = 'ex'+example+'/'
+filename = folder_name+example_name+'_'
 
 # load data
 A = np.loadtxt(filename+'A.csv', delimiter=',')
@@ -23,6 +24,10 @@ xlb = np.loadtxt(filename+'xlb.csv', delimiter=',')
 xub =  np.loadtxt(filename+'xub.csv', delimiter=',')
 ulb = np.loadtxt(filename+'ulb.csv', delimiter=',')
 uub = np.loadtxt(filename+'uub.csv', delimiter=',')
+
+A_p = H[:,0:-1]
+b_p = H[:,-1]
+polytope = Polytope(A_p, b_p)
 
 Q = np.loadtxt(filename+'Q.csv', delimiter=',')
 QN = Q
@@ -38,9 +43,9 @@ umin, umax = ulb, uub
 Ad, Bd = A,B
 nx, nu = n, m
 
+
 # system dynamics
 A_sys, B_sys = A, B
-
 
 if m == 1:
   Bd = np.expand_dims(B, axis=1)
@@ -48,13 +53,15 @@ if m == 1:
 initial_states = np.loadtxt(filename+"initial_states_{}.csv".format(ntrajs), delimiter=',')
 
 s = 0
+feasible_states = []
+not_solved = []
 for sample in initial_states:
   # Initial and reference states
   x0 = sample
   xr = np.array([0.,0.])
+  solved = True
 
   if n == 4:
-    print("n")
     xr = np.array([0., 0., 0., 0.])
 
 
@@ -84,7 +91,7 @@ for sample in initial_states:
   prob = osqp.OSQP()
 
   # Setup workspace
-  prob.setup(P, q, A, l, u, warm_start=True)
+  prob.setup(P, q, A, l, u, warm_start=True, max_iter = 4000, verbose=False)
 
 
   # Simulate in closed loop
@@ -92,13 +99,20 @@ for sample in initial_states:
   traj_matrix = np.zeros((NT,n))
   traj_matrix[0,:] = x0
   u_matrix = np.zeros((NT-1,m))
+
   for i in range(NT-1):
       # Solve
       res = prob.solve()
 
       # Check solver status
       if res.info.status != 'solved':
-          raise ValueError('OSQP did not solve the problem!')
+        if solved:
+          not_solved.append(x0)
+          solved = False
+        print("x0: ", x0)
+        print("not solved \n")
+        continue
+          #raise ValueError('OSQP did not solve the problem!')
 
       # Apply first control input to the plant
       ctrl = res.x[-N*nu:-(N-1)*nu]
@@ -113,13 +127,12 @@ for sample in initial_states:
       traj_matrix[i+1,:] = x0
       u_matrix[i,:] = ctrl
 
-
+  if solved:
+    feasible_states.append(sample)
   # -------------------------------------------------
   # ----------------- PLOT TRAJECTORY --------------- 
   # -------------------------------------------------
-  A_p = H[:,0:-1]
-  b_p = H[:,-1]
-  polytope = Polytope(A_p, b_p)
+
 
   if n <= 2 and traj:
     polytope.plot_poly(xlb, xub, infeasible_states = traj, show = False)
@@ -138,6 +151,11 @@ for sample in initial_states:
   np.savetxt(filename+'mpc_trajectory_{}_N_{}'.format(s+1,NT)+".csv", traj_matrix, delimiter=',')
   np.savetxt(filename+'mpc_controls_trajectory_{}_N_{}'.format(s+1,NT)+".csv", u_matrix, delimiter=',')
   s += 1
+
+print("Not solved: ", len(not_solved), "/", ntrajs)
+print("Solved: ", len(feasible_states), "/", ntrajs)
+
+
 
 #savetxt(filenameIn, feasible_states, delimiter = ',')
 #savetxt(filenameOut, feasible_inputs, delimiter = ',')

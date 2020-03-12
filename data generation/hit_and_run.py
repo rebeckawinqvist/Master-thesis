@@ -13,7 +13,8 @@ if __name__ == "__main__":
     example = str(sys.argv[1]).upper()
 
     example_name = 'ex'+example
-    filename = example_name+'_'
+    folder_name = 'ex'+example+'/'
+    filename = folder_name+example_name+'_'
 
     H = np.loadtxt(filename+'cinfH.csv', delimiter=',')
     V = np.loadtxt(filename+'cinfV.csv', delimiter=',')
@@ -24,13 +25,14 @@ if __name__ == "__main__":
     polytope = Polytope(A,B,V)
     x0 = np.array([-4.5, 2])
     if polytope.n == 4:
-        x0 = np.array([-2, -5.3, 1, 0.5])
+        x0 = np.array([0, 0, 0, 0])
+        print(polytope.is_inside(x0))
 
-    plot_and_save = False
+    to_plot = False
     if polytope.n <= 2:
-        plot_and_save = True
+        to_plot = False
 
-    n_samples = 1000   
+    n_samples = 1000 
 
 
     #plt.arrow(x0[0], x0[1], direction[0], direction[1], head_width=0.1, head_length=0.05)
@@ -44,6 +46,7 @@ if __name__ == "__main__":
         # system of equations
         for (a, b) in zip(A,B):
             l = (b - np.dot(a,x0)) / (np.dot(a,direction))
+            x_l = x0 + l*direction
             if l < 0:
                 continue
             
@@ -58,7 +61,7 @@ if __name__ == "__main__":
         x0 = sample
 
     
-    if plot_and_save:
+    if to_plot:
         plt.ylim(xlb[1]-1,xub[1]+1)
         plt.xlim(xlb[0]-1,xub[0]+1)
         polytope.plot_poly(xlb, xub, save=False, show=False)
@@ -77,6 +80,19 @@ if __name__ == "__main__":
         plt.savefig(filen_fig)
 
         plt.show()
+
+    feasible_samples = []
+    for sample in samples: 
+        if not polytope.is_inside(sample):
+            print("out")
+        else:
+            feasible_samples.append(sample)
+
+    print("Infeasible samples: [%]: ", len(feasible_samples)/len(samples))
+    print("Kept samples: ", len(feasible_samples),"/",len(samples))
+
+    #for sample in samples:
+        #print(sample)
 
     np.savetxt(filename+"initial_states_har.csv", samples, delimiter=",")
 

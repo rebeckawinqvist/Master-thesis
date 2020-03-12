@@ -19,7 +19,8 @@ data_generation = str(sys.argv[2].lower())
 num_epochs = int(sys.argv[3])
 
 example_name = 'ex'+example
-filename = example_name+'_'
+folder_name = 'ex'+example+'/'
+filename = folder_name+example_name+'_'
 
 # (GLOBAL) network settings
 #num_epochs = 200

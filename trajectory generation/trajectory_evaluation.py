@@ -10,7 +10,8 @@ if __name__ == "__main__":
     ntrajs = int(sys.argv[2])
     N = int(sys.argv[3])
     example_name = 'ex'+example
-    filename = example_name+'_'
+    folder_name = 'ex'+example+'/'
+    filename = folder_name+example_name+'_'
 
     A = np.loadtxt(filename+'A.csv', delimiter=',')
     B = np.loadtxt(filename+'B.csv', delimiter=',')
@@ -28,7 +29,7 @@ if __name__ == "__main__":
 
     to_plot = True
 
-    names = ["Proj NN", "NoProj NN", "MPC"]
+    names = ["Proj NN", "LQR Proj NN", "MPC"]
     costs = [[], [], []]
     costs_dict = dict(zip(names, costs))
 
@@ -36,13 +37,15 @@ if __name__ == "__main__":
         traj_projNN = np.loadtxt(filename+'projNN_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
         traj_noprojNN = np.loadtxt(filename+'noprojNN_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
         traj_mpc = np.loadtxt(filename+'mpc_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
+        traj_lqr_projNN = np.loadtxt(filename+'lqr_projNN_trajectory_{}_N_{}.csv'.format(i+1,N), delimiter=',')
 
         controls_projNN = np.loadtxt(filename+'projNN_controls_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
         controls_noprojNN = np.loadtxt(filename+'noprojNN_controls_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
         controls_mpc = np.loadtxt(filename+'mpc_controls_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
+        controls_lqr_projNN = np.loadtxt(filename+'lqr_projNN_controls_trajectory_{}_N_{}.csv'.format(i+1,N), delimiter=',')
 
-        trajs = [traj_projNN, traj_noprojNN, traj_mpc]
-        controls = [controls_projNN, controls_noprojNN, controls_mpc]
+        trajs = [traj_projNN, traj_lqr_projNN, traj_mpc]
+        controls = [controls_projNN, controls_lqr_projNN, controls_mpc]
         
         trajs_dict = dict(zip(names, trajs))
         controls_dict = dict(zip(names, controls))
@@ -66,7 +69,8 @@ if __name__ == "__main__":
     for key in costs_dict:
         print(key, ": ")
         for c in costs_dict[key]:
-            print(c)
+            #print(c)
+            pass
 
         lambda_max = max(costs_dict[key])
         lambda_min = min(costs_dict[key])

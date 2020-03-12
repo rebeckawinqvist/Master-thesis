@@ -11,7 +11,8 @@ example = str(sys.argv[1]).upper()
 sampling_method = str(sys.argv[2].lower())
 
 example_name = 'ex'+example
-filename = example_name+'_'
+folder_name = 'ex'+example+'/'
+filename = folder_name+example_name+'_'
 
 # load data
 A = np.loadtxt(filename+'A.csv', delimiter=',')
