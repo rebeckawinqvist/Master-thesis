@@ -22,6 +22,7 @@ N = int(sys.argv[3])
 example_name = 'ex'+example
 folder_name = 'ex'+example+'/'
 filename = folder_name+example_name+'_'
+filename_save = 'ex'+example+'/trajectories/'
 
 # (GLOBAL) network settings
 #num_epochs = 200
@@ -259,12 +260,12 @@ if __name__ == "__main__":
             plt.title(title)
             plt.xlabel(xlabel)
             plt.ylabel(ylabel) 
-            filen_fig = filename+"lqr_projNN_trajectory_{}_N_{}".format(s+1,N)+".png"
+            filen_fig = filename_save+"lqr_projNN_ntrajs_{}_N_{}_traj_{}".format(ntrajs, N, s+1)+".png"
 
             plt.savefig(filen_fig)
             plt.show()
 
-        np.savetxt(filename+'lqr_projNN_trajectory_{}_N_{}'.format(s+1,N)+".csv", traj_matrix, delimiter=',')
-        np.savetxt(filename+'lqr_projNN_controls_trajectory_{}_N_{}'.format(s+1,N)+".csv", u_matrix, delimiter=',')
+        np.savetxt(filename_save+'lqr_projNN_ntrajs_{}_N_{}_traj_{}'.format(ntrajs, N, s+1)+".csv", traj_matrix, delimiter=',')
+        np.savetxt(filename_save+'lqr_projNN_controls_ntrajs_{}_N_{}_traj_{}'.format(ntrajs, N, s+1)+".csv", u_matrix, delimiter=',')
         s += 1
 

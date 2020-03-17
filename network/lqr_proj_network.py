@@ -151,7 +151,7 @@ class Network(nn.Module):
             u_lqr = torch.Tensor(-L @ -x.unsqueeze(-1).data.numpy())
 
         u = u_lqr + u
-        u, self.cvxpy_layer(E, f, G, h, u, solver_args={'verbose': True, 'max_iters': 12000000})
+        u, = self.cvxpy_layer(E, f, G, h, u, solver_args={'verbose': False, 'max_iters': 12000000})
         #u, = self.cvxpy_layer(G, h, u)
 
         return u

@@ -145,7 +145,7 @@ class Network(nn.Module):
         #print("A: \n", E, "\nb: ", f, "\n")
         #print("x: \n", x, "\nu: \n", u, "\n")
         #print(E@u <= f)
-        u, self.cvxpy_layer(E, f, G, h, u, solver_args={'verbose': True, 'max_iters': 4000000})
+        u, = self.cvxpy_layer(E, f, G, h, u, solver_args={'verbose': False, 'max_iters': 4000000})
         #u, = self.cvxpy_layer(G, h, u)
 
         return u
@@ -322,7 +322,7 @@ if __name__ == "__main__":
 
     test_batch_losses = []
     relative_losses = []
-    for ix, (x, y) in enumerate(train_set):
+    for ix, (x, y) in enumerate(test_set):
         _x = Variable(x).float()
         _y = Variable(y).float()
         _y = _y.unsqueeze(-1)

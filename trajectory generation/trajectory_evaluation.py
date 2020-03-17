@@ -12,6 +12,8 @@ if __name__ == "__main__":
     example_name = 'ex'+example
     folder_name = 'ex'+example+'/'
     filename = folder_name+example_name+'_'
+    filename_trajs = example_name+'/trajectories/'
+    filename_evals = example_name+'/evaluations/'
 
     A = np.loadtxt(filename+'A.csv', delimiter=',')
     B = np.loadtxt(filename+'B.csv', delimiter=',')
@@ -29,30 +31,32 @@ if __name__ == "__main__":
 
     to_plot = True
 
-    names = ["Proj NN", "LQR Proj NN", "MPC"]
-    costs = [[], [], []]
+    names = ["Proj NN", "LQR Proj NN", "MPC", "NoProj NN"]
+    costs = [[], [], [], []]
     costs_dict = dict(zip(names, costs))
 
-    for i in range(ntrajs-1):
-        traj_projNN = np.loadtxt(filename+'projNN_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
-        traj_noprojNN = np.loadtxt(filename+'noprojNN_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
-        traj_mpc = np.loadtxt(filename+'mpc_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
-        traj_lqr_projNN = np.loadtxt(filename+'lqr_projNN_trajectory_{}_N_{}.csv'.format(i+1,N), delimiter=',')
+    for i in range(ntrajs):
+        traj_projNN = np.loadtxt(filename_trajs+'projNN_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
+        traj_noprojNN = np.loadtxt(filename_trajs+'noprojNN_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
+        traj_mpc = np.loadtxt(filename_trajs+'mpc_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
+        traj_lqr_projNN = np.loadtxt(filename_trajs+'lqr_projNN_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
 
-        controls_projNN = np.loadtxt(filename+'projNN_controls_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
-        controls_noprojNN = np.loadtxt(filename+'noprojNN_controls_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
-        controls_mpc = np.loadtxt(filename+'mpc_controls_trajectory_{}_N_{}.csv'.format(i+1, N), delimiter=',')
-        controls_lqr_projNN = np.loadtxt(filename+'lqr_projNN_controls_trajectory_{}_N_{}.csv'.format(i+1,N), delimiter=',')
+        controls_projNN = np.loadtxt(filename_trajs+'projNN_controls_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
+        controls_noprojNN = np.loadtxt(filename_trajs+'noprojNN_controls_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
+        controls_mpc = np.loadtxt(filename_trajs+'mpc_controls_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
+        controls_lqr_projNN = np.loadtxt(filename_trajs+'lqr_projNN_controls_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
 
-        trajs = [traj_projNN, traj_lqr_projNN, traj_mpc]
-        controls = [controls_projNN, controls_lqr_projNN, controls_mpc]
+        trajs = [traj_projNN, traj_lqr_projNN, traj_mpc, traj_noprojNN]
+        controls = [controls_projNN, controls_lqr_projNN, controls_mpc, controls_noprojNN]
+        colors = ['b', 'g', 'y', 'r']
         
         trajs_dict = dict(zip(names, trajs))
         controls_dict = dict(zip(names, controls))
+        color_dict = dict(zip(names, colors))
         
         for key in trajs_dict:            
             cost = 0
-            states, controls = trajs_dict[key][0:-1], controls_dict[key]
+            states, controls, color = trajs_dict[key][0:-1], controls_dict[key], color_dict[key]
             x0 = states[0,:]
             for (x,u) in zip(states, controls):
                 if m < 2:
@@ -67,14 +71,35 @@ if __name__ == "__main__":
             costs_dict[key].append(cost_n)
 
     for key in costs_dict:
-        print(key, ": ")
+        print(key + ": ")
         for c in costs_dict[key]:
             #print(c)
             pass
-
+        
         lambda_max = max(costs_dict[key])
         lambda_min = min(costs_dict[key])
-        print("\nMin: {} \nMax: {} \n\n".format(lambda_min, lambda_max))       
+        print("\nMin: {} \nMax: {} \n\n\n".format(lambda_min, lambda_max))   
 
+    
+    # plot and save costs
 
+    x = [i+1 for i in range(ntrajs)]
+    plt.plot(x, costs_dict["Proj NN"], color='b', linestyle='--', marker='o', label='Proj NN')
+    plt.plot(x, costs_dict["NoProj NN"], color='r', linestyle='-.', marker='^', label='NoProj NN')
+    plt.plot(x, costs_dict["LQR Proj NN"], color='g', linestyle=':', marker='s', label='LQR NN')
+    plt.plot(x, costs_dict["MPC"], color='y', linestyle='-', marker='*', label='MPC')
+    plt.legend(loc = 'upper left')
 
+    plt.title("Trajectory evaluation")
+    plt.xlabel("Trajectory")
+    plt.ylabel("Cost")
+
+    plt.xticks(np.arange(0, ntrajs+1, step=1))
+    filen_fig = filename_evals+'evaluation_ntrajs_{}_N_{}_alltrajs.png'.format(ntrajs, N)
+    plt.savefig(filen_fig)
+    plt.show()
+
+    np.savetxt(filename_evals+'eval_projNN_ntrajs_{}_N_{}_alltrajs'.format(ntrajs, N)+".csv", costs_dict["Proj NN"], delimiter=',')
+    np.savetxt(filename_evals+'eval_noprojNN_ntrajs_{}_N_{}_alltrajs'.format(ntrajs, N)+".csv", costs_dict["NoProj NN"], delimiter=',')
+    np.savetxt(filename_evals+'eval_mpc_ntrajs_{}_N_{}_alltrajs'.format(ntrajs, N)+".csv", costs_dict["MPC"] , delimiter=',')
+    np.savetxt(filename_evals+'eval_lqr_projNN_ntrajs_{}_N_{}_alltrajs'.format(ntrajs, N)+".csv", costs_dict["LQR Proj NN"] , delimiter=',')

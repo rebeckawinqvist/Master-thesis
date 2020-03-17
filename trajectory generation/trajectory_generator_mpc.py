@@ -15,6 +15,7 @@ NT = int(sys.argv[3])
 example_name = 'ex'+example
 folder_name = 'ex'+example+'/'
 filename = folder_name+example_name+'_'
+filename_save = 'ex'+example+'/trajectories/'
 
 # load data
 A = np.loadtxt(filename+'A.csv', delimiter=',')
@@ -50,7 +51,11 @@ A_sys, B_sys = A, B
 if m == 1:
   Bd = np.expand_dims(B, axis=1)
 
+
 initial_states = np.loadtxt(filename+"initial_states_{}.csv".format(ntrajs), delimiter=',')
+for sample in initial_states:
+    print(polytope.is_inside(sample))        
+    
 
 s = 0
 feasible_states = []
@@ -110,6 +115,8 @@ for sample in initial_states:
           not_solved.append(x0)
           solved = False
         print("x0: ", x0)
+        print("sample: ", sample)
+        print("Inside polytope: ", polytope.is_inside(x0))
         print("not solved \n")
         continue
           #raise ValueError('OSQP did not solve the problem!')
@@ -143,13 +150,13 @@ for sample in initial_states:
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel) 
-    filen_fig = filename+"mpc_trajectory_{}_N_{}".format(s+1,NT)+".png"
+    filen_fig = filename_save+"mpc_ntrajs_{}_N_{}_traj_{}".format(ntrajs, NT, s+1)+".png"
 
     plt.savefig(filen_fig)
     #plt.show()
 
-  np.savetxt(filename+'mpc_trajectory_{}_N_{}'.format(s+1,NT)+".csv", traj_matrix, delimiter=',')
-  np.savetxt(filename+'mpc_controls_trajectory_{}_N_{}'.format(s+1,NT)+".csv", u_matrix, delimiter=',')
+  np.savetxt(filename_save+'mpc_ntrajs_{}_N_{}_traj_{}'.format(ntrajs, NT, s+1)+".csv", traj_matrix, delimiter=',')
+  np.savetxt(filename_save+'mpc_controls_ntrajs_{}_N_{}_traj_{}'.format(ntrajs, NT, s+1)+".csv", u_matrix, delimiter=',')
   s += 1
 
 print("Not solved: ", len(not_solved), "/", ntrajs)
