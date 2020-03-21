@@ -99,6 +99,13 @@ if __name__ == "__main__":
     plt.savefig(filen_fig)
     plt.show()
 
+    plt.scatter(x, costs_dict["Proj NN"], color='b', linestyle='--', marker='o', label='Proj NN')
+    plt.scatter(x, costs_dict["NoProj NN"], color='r', linestyle='-.', marker='^', label='NoProj NN')
+    plt.scatter(x, costs_dict["LQR Proj NN"], color='g', linestyle=':', marker='s', label='LQR NN')
+    plt.scatter(x, costs_dict["MPC"], color='y', linestyle='-', marker='*', label='MPC')
+    plt.legend(loc = 'upper left')
+    plt.show()
+
     np.savetxt(filename_evals+'eval_projNN_ntrajs_{}_N_{}_alltrajs'.format(ntrajs, N)+".csv", costs_dict["Proj NN"], delimiter=',')
     np.savetxt(filename_evals+'eval_noprojNN_ntrajs_{}_N_{}_alltrajs'.format(ntrajs, N)+".csv", costs_dict["NoProj NN"], delimiter=',')
     np.savetxt(filename_evals+'eval_mpc_ntrajs_{}_N_{}_alltrajs'.format(ntrajs, N)+".csv", costs_dict["MPC"] , delimiter=',')

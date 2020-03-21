@@ -139,9 +139,8 @@ if __name__ == "__main__":
             u_matrix[i,:] = u.data.numpy()
             x0 = torch.from_numpy(x1).float()
 
-        plot_ = True
         polytope = Polytope(A_p, b_p)
-        if n <= 2 and traj and plot_:
+        if n <= 2:
             polytope.plot_poly(xlb, xub, infeasible_states = traj, show = False)
 
             title = "Example {} \n Sample: {} \n NoProj NN trajectory".format(example,s+1)

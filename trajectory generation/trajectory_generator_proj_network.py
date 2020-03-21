@@ -133,7 +133,7 @@ class Network(nn.Module):
         # projection/cvxpy-layer
         E, f, G, h, u = self.get_tensors(x, u)
         #u = u.unsqueeze(-1)
-        u, self.cvxpy_layer(E, f, G, h, u, solver_args={'verbose': False, 'max_iters': 4000000})
+        u, = self.cvxpy_layer(E, f, G, h, u, solver_args={'verbose': False, 'max_iters': 4000000})
 
         return u
 

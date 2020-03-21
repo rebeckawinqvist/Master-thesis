@@ -147,7 +147,7 @@ class Network(nn.Module):
                 #u_lqr = -L @ x
 
         u = u_lqr + u
-        u, self.cvxpy_layer(E, f, G, h, u, solver_args={'verbose': False, 'max_iters': 4000000})
+        u, = self.cvxpy_layer(E, f, G, h, u, solver_args={'verbose': False, 'max_iters': 4000000})
 
         return u
 
@@ -263,7 +263,7 @@ if __name__ == "__main__":
             filen_fig = filename_save+"lqr_projNN_ntrajs_{}_N_{}_traj_{}".format(ntrajs, N, s+1)+".png"
 
             plt.savefig(filen_fig)
-            plt.show()
+            #plt.show()
 
         np.savetxt(filename_save+'lqr_projNN_ntrajs_{}_N_{}_traj_{}'.format(ntrajs, N, s+1)+".csv", traj_matrix, delimiter=',')
         np.savetxt(filename_save+'lqr_projNN_controls_ntrajs_{}_N_{}_traj_{}'.format(ntrajs, N, s+1)+".csv", u_matrix, delimiter=',')

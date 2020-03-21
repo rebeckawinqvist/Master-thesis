@@ -328,7 +328,7 @@ if __name__ == "__main__":
 
     test_batch_losses = []
     relative_losses = []
-    for ix, (x, y) in enumerate(train_set):
+    for ix, (x, y) in enumerate(test_set):
         _x = Variable(x).float()
         _y = Variable(y).float()
         _y = _y.unsqueeze(-1)

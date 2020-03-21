@@ -149,9 +149,8 @@ class Network(nn.Module):
         #print("A: \n", E, "\nb: ", f, "\n")
         #print("x: \n", x, "\nu: \n", u, "\n")
         #print(E@u <= f)
-        print(u)
-        u, self.cvxpy_layer(E, f, G, h, u, solver_args={'verbose': False, 'max_iters': 10000000})
-        print(u, "\n\n\n")
+
+        u, = self.cvxpy_layer(E, f, G, h, u, solver_args={'verbose': False, 'max_iters': 10000000})
         #u, = self.cvxpy_layer(G, h, u)
 
         return u
@@ -360,7 +359,7 @@ if __name__ == "__main__":
 
     np.savetxt(filename+'test_mse_losses_ntrain_{}_ntest_{}_nepochs_{}.csv'.format(nsamples_train, nsamples_test, nepochs), mse_arr, delimiter=',')
     np.savetxt(filename+'test_nmse_losses_ntrain_{}_ntest_{}_nepochs_{}.csv'.format(nsamples_train, nsamples_test, nepochs), nmse_arr, delimiter=',')
-    np.savetxt(filename+'train_losses_ntrain_{}_ntest_{}_nepochs_{}.csv'.format(nsamples_train, nsamples_test, nepochs), mse_arr, delimiter=',')
+    np.savetxt(filename+'train_losses_ntrain_{}_ntest_{}_nepochs_{}.csv'.format(nsamples_train, nsamples_test, nepochs), epochs_arr, delimiter=',')
 
 
     title = "Example {} \n Test cases".format(example)
@@ -411,7 +410,7 @@ if __name__ == "__main__":
     plt.plot(x, test_nmse_losses, 'ro', linewidth=0.8, markersize=2)
     xlabel = "Test sample"
     ylabel = "NMSE Loss"
-    title = "Example {} \n Training samples: {} \t Test samples: {} \n Epochs: {}".format(example, nsamples_train, nsamples_test, nepochs)
+    title = "Example {} \n Training samples: {}   Test samples: {} \n Epochs: {}".format(example, nsamples_train, nsamples_test, nepochs)
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel) 

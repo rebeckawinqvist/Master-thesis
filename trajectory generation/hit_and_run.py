@@ -79,7 +79,8 @@ if __name__ == "__main__":
         plt.title(title)
         plt.xlabel(xlabel)
         plt.ylabel(ylabel) 
-        filen_fig = filename+"har"+("_samples_{}".format(len(samples)))+".png"
+        filen_fig = filename+"initial_states_{}.png".format(nsamples)
+        #filen_fig = filename+"har"+("_samples_{}".format(len(samples)))+".png"
 
         plt.savefig(filen_fig)
 
@@ -91,7 +92,7 @@ if __name__ == "__main__":
         if polytope.is_inside(sample):
             feasible_samples.append(sample)
 
-    print("Feasible samples: [%]: ", len(feasible_samples)/len(samples))
+    print("Feasible samples: {} %: ".format(len(feasible_samples)/len(samples))) 
     print("Kept samples: ", len(feasible_samples),"/",len(samples))
 
     np.savetxt(filename+"initial_states_{}.csv".format(nsamples), feasible_samples, delimiter=",")
