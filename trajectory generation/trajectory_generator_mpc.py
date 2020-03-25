@@ -54,7 +54,8 @@ if m == 1:
 
 initial_states = np.loadtxt(filename+"initial_states_{}.csv".format(ntrajs), delimiter=',')
 for sample in initial_states:
-    print(polytope.is_inside(sample))        
+  if not polytope.is_inside(sample):
+    print("False")    
     
 
 s = 0

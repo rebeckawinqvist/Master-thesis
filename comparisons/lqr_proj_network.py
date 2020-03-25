@@ -365,7 +365,7 @@ if __name__ == "__main__":
 
     np.savetxt(filename+'lqr_test_mse_losses_ntrain_{}_ntest_{}_nepochs_{}.csv'.format(nsamples_train, nsamples_test, nepochs), mse_arr, delimiter=',')
     np.savetxt(filename+'lqr_test_nmse_losses_ntrain_{}_ntest_{}_nepochs_{}.csv'.format(nsamples_train, nsamples_test, nepochs), nmse_arr, delimiter=',')
-    np.savetxt(filename+'lqr_train_losses_ntrain_{}_ntest_{}_nepochs_{}.csv'.format(nsamples_train, nsamples_test, nepochs), mse_arr, delimiter=',')
+    np.savetxt(filename+'lqr_train_losses_ntrain_{}_ntest_{}_nepochs_{}.csv'.format(nsamples_train, nsamples_test, nepochs), epochs_arr, delimiter=',')
 
 
     title = "Example {} \n Test cases".format(example)

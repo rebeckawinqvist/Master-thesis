@@ -25,7 +25,7 @@ filename = folder_name+example_name+'_'
 #num_epochs = 200
 batch_size_train = 5
 batch_size_test = 1
-batch_size = batch_size_train
+#batch_size = batch_size_train
 
 learning_rate = 1e-4
 device = 'cpu'
@@ -213,12 +213,12 @@ class Network(nn.Module):
         #h.requires_grad = False
         #u.requires_grad = False
 
-        return E, f, G, h, u
-        
-
-        
+        return E, f, G, h, u    
+   
 
 if __name__ == "__main__":
+    global batch_size
+
     # define network
     print("\nRunning example: " + example + "\n")
     NN = Network([8,8])
@@ -236,7 +236,13 @@ if __name__ == "__main__":
     X_test = torch.from_numpy(np.loadtxt(f_test_in, delimiter=','))
     Y_test = torch.from_numpy(np.loadtxt(f_test_out, delimiter=',')[:,0:m])
 
-
+    if X_train.shape[0] > 7000:
+        batch_size_train = 100
+    else:
+        batch_size = 5
+    
+    batch_size = batch_size_train
+    print("Batch size train: ", batch_size)
     # split data into training set and test set
     #train, test = train_test_split(list(range(X.shape[0])), test_size=.25)
 
@@ -301,9 +307,10 @@ if __name__ == "__main__":
 
     logging.info("  ---------- TRAINING COMPLETED ----------")
     batch_size = batch_size_test
+    print("Batch size test: ", batch_size)
     
     """ UNCOMMENT TO SAVE MODEL """
-    torch.save(NN.state_dict(), filename+'proj_network_model.pt')
+    torch.save(NN.state_dict(), filename+'proj_network_model_batch_size_{}.pt'.format(batch_size_train))
 
     
     # TEST MODEL

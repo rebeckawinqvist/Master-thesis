@@ -92,7 +92,7 @@ if __name__ == "__main__":
         if polytope.is_inside(sample):
             feasible_samples.append(sample)
 
-    print("Feasible samples: {} %: ".format(len(feasible_samples)/len(samples))) 
+    print("Feasible samples: {} % ".format(100*len(feasible_samples)/len(samples))) 
     print("Kept samples: ", len(feasible_samples),"/",len(samples))
 
     np.savetxt(filename+"initial_states_{}.csv".format(nsamples), feasible_samples, delimiter=",")

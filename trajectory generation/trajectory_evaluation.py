@@ -56,7 +56,7 @@ if __name__ == "__main__":
         
         for key in trajs_dict:            
             cost = 0
-            states, controls, color = trajs_dict[key][0:-1], controls_dict[key], color_dict[key]
+            states, controls, color = trajs_dict[key][0:-1], np.expand_dims(controls_dict[key], axis=0), color_dict[key]
             x0 = states[0,:]
             for (x,u) in zip(states, controls):
                 if m < 2:
@@ -83,11 +83,14 @@ if __name__ == "__main__":
     
     # plot and save costs
 
+    ms = 2
+    lw = 1
+
     x = [i+1 for i in range(ntrajs)]
-    plt.plot(x, costs_dict["Proj NN"], color='b', linestyle='--', marker='o', label='Proj NN')
-    plt.plot(x, costs_dict["NoProj NN"], color='r', linestyle='-.', marker='^', label='NoProj NN')
-    plt.plot(x, costs_dict["LQR Proj NN"], color='g', linestyle=':', marker='s', label='LQR NN')
-    plt.plot(x, costs_dict["MPC"], color='y', linestyle='-', marker='*', label='MPC')
+    plt.plot(x, costs_dict["Proj NN"], color='b', linestyle='--', marker='o', label='Proj NN', markersize=ms, linewidth=lw)
+    plt.plot(x, costs_dict["NoProj NN"], color='r', linestyle='-.', marker='^', label='NoProj NN', markersize=ms, linewidth=lw)
+    plt.plot(x, costs_dict["LQR Proj NN"], color='g', linestyle=':', marker='s', label='LQR NN', markersize=ms, linewidth=lw)
+    plt.plot(x, costs_dict["MPC"], color='y', linestyle='-', marker='*', label='MPC', markersize=ms, linewidth=lw)
     plt.legend(loc = 'upper left')
 
     plt.title("Trajectory evaluation")
@@ -99,10 +102,10 @@ if __name__ == "__main__":
     plt.savefig(filen_fig)
     plt.show()
 
-    plt.scatter(x, costs_dict["Proj NN"], color='b', linestyle='--', marker='o', label='Proj NN')
-    plt.scatter(x, costs_dict["NoProj NN"], color='r', linestyle='-.', marker='^', label='NoProj NN')
-    plt.scatter(x, costs_dict["LQR Proj NN"], color='g', linestyle=':', marker='s', label='LQR NN')
-    plt.scatter(x, costs_dict["MPC"], color='y', linestyle='-', marker='*', label='MPC')
+    plt.scatter(x, costs_dict["Proj NN"], color='b', linestyle='--', marker='o', label='Proj NN', s=ms)
+    plt.scatter(x, costs_dict["NoProj NN"], color='r', linestyle='-.', marker='^', label='NoProj NN', s=ms)
+    plt.scatter(x, costs_dict["LQR Proj NN"], color='g', linestyle=':', marker='s', label='LQR NN', s=ms)
+    plt.scatter(x, costs_dict["MPC"], color='y', linestyle='-', marker='*', label='MPC', s=ms)
     plt.legend(loc = 'upper left')
     plt.show()
 

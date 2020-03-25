@@ -100,7 +100,7 @@ if __name__ == "__main__":
         plt.show()
 
 
-    print("Infeasible samples: [%]: ", len(feasible_samples)/len(samples))
+    print("Feasible samples [%]: ", 100*len(feasible_samples)/len(samples))
     print("Kept samples: ", len(feasible_samples),"/",len(samples))
 
     np.savetxt(filename+"har_nsamples_{}_{}.csv".format(len(feasible_samples), gen_type), feasible_samples, delimiter=",")
