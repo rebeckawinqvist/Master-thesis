@@ -228,18 +228,13 @@ if __name__ == "__main__":
     m = NN.problem_params['m']
 
     # data
-    f_train_in, f_train_out = filename+'input_data_train.csv', filename+'output_data_train.csv'
-    f_test_in, f_test_out = filename+'input_data_test.csv', filename+'output_data_test.csv'
+    f_train_in, f_train_out = 'ex{}/input_data/ex{}_input_data_train.csv'.format(example, example), 'ex{}/output_data/ex{}_output_data_train.csv'.format(example, example)
+    f_test_in, f_test_out = 'ex{}/input_data/ex{}_input_data_test.csv'.format(example, example), 'ex{}/output_data/ex{}_output_data_test.csv'.format(example, example)
     
     X_train = torch.from_numpy(np.loadtxt(f_train_in, delimiter=','))
     Y_train = torch.from_numpy(np.loadtxt(f_train_out, delimiter=',')[:,0:m])
     X_test = torch.from_numpy(np.loadtxt(f_test_in, delimiter=','))
     Y_test = torch.from_numpy(np.loadtxt(f_test_out, delimiter=',')[:,0:m])
-
-    if X_train.shape[0] > 7000:
-        batch_size_train = 100
-    else:
-        batch_size = 5
     
     batch_size = batch_size_train
     print("Batch size train: ", batch_size)
@@ -306,16 +301,15 @@ if __name__ == "__main__":
             print("Epoch [{}/{}], Batch loss: {}".format(epoch, num_epochs, mbl))
 
     logging.info("  ---------- TRAINING COMPLETED ----------")
-    batch_size = batch_size_test
-    print("Batch size test: ", batch_size)
-    
+
     """ UNCOMMENT TO SAVE MODEL """
-    torch.save(NN.state_dict(), filename+'proj_network_model_batch_size_{}.pt'.format(batch_size_train))
+    torch.save(NN.state_dict(), 'ex{}/networks/ex{}_proj_network_model_batch_size_{}.pt'.format(example, example, batch_size_train))
 
     
     # TEST MODEL
     logging.info("  ---------- TESTING STARTED ----------")
-    
+    batch_size = batch_size_test
+
     # test the model
 
     # plot if n = 2
@@ -340,7 +334,8 @@ if __name__ == "__main__":
 
 
     test_mse_losses = []
-    test_nmse_losses = []
+    #test_nmse_losses = []
+    true_values = []
     for ix, (x, y) in enumerate(test_set):
         _x = Variable(x).float()
         _y = Variable(y).float()
@@ -362,7 +357,12 @@ if __name__ == "__main__":
         test_loss = criterion(test_output, _y)
 
         test_mse_losses.append(test_loss.item())
+        norm = torch.norm(_y, p=2)**2
+        #nmse_loss = test_loss.item()/norm
+        #test_nmse_losses.append(nmse_loss.item())
+        true_values.append(norm.item())
 
+        """
         diff = (_y - test_output).detach().numpy()
         abs_diff = np.absolute(diff)
         rel_losses = np.divide(abs_diff,np.absolute(_y))
@@ -379,18 +379,24 @@ if __name__ == "__main__":
 
             test_nmse_losses.append(rel_loss.data.numpy().flatten()[0])
             i += 1
+        """
         #print("Batch loss: {}".format(test_loss.item()))
 
     
     logging.info("  ---------- TESTING COMPLETED ----------")
 
     mse_arr = np.array(test_mse_losses)
-    nmse_arr = np.array(test_nmse_losses)
+    #nmse_arr = np.array(test_nmse_losses)
     epochs_arr = np.array(epochs_losses)
+    true_values_arr = np.array(true_values)
 
-    np.savetxt(filename+'proj_test_mse_losses.csv', mse_arr, delimiter=',')
-    np.savetxt(filename+'proj_test_nmse_losses.csv', nmse_arr, delimiter=',')
-    np.savetxt(filename+'proj_train_losses.csv', epochs_arr, delimiter=',')
+    filename_test = 'ex{}/test_losses/ex{}_'.format(example, example)
+    filename_train = 'ex{}/train_losses/ex{}_'.format(example, example)
+
+    np.savetxt(filename_test+'proj_test_mse_losses.csv', mse_arr, delimiter=',')
+    #np.savetxt(filename+'proj_test_nmse_losses.csv', nmse_arr, delimiter=',')
+    np.savetxt(filename_train+'proj_train_losses.csv', epochs_arr, delimiter=',')
+    np.savetxt('ex{}/true_values/ex{}_true_values_ntrain_{}_ntest_{}.csv'.format(example,example,nsamples_train, nsamples_test), true_values_arr, delimiter=',')
 
     title = "Example {} \n Test cases".format(example)
     xlabel = "$x_1$"
@@ -398,12 +404,9 @@ if __name__ == "__main__":
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    filen_fig = filename+"proj_difficulty_points.png"
+    filen_fig = "ex{}/plots/ex{}_proj_difficulty_points.png".format(example, example)
     plt.savefig(filen_fig)
     plt.show()
-    print("Mean MSE loss: ", statistics.mean(test_mse_losses))
-    print("Mean NMSE loss: ", statistics.mean(test_nmse_losses))
-
 
     # plot train losses
     x = [i+1 for i in range(len(epochs_losses))]
@@ -415,7 +418,7 @@ if __name__ == "__main__":
     plt.xlabel(xlabel)
     plt.ylabel(ylabel) 
 
-    filen_fig = filename+"proj_train_losses.png"
+    filen_fig = "ex{}/train_losses/ex{}_proj_train_losses.png".format(example, example)
     plt.savefig(filen_fig)
     plt.show()
 
@@ -430,11 +433,11 @@ if __name__ == "__main__":
     plt.xlabel(xlabel)
     plt.ylabel(ylabel) 
 
-    filen_fig = filename+"proj_test_mse_losses.png"
+    filen_fig = "ex{}/test_losses/ex{}_proj_test_mse_losses.png".format(example, example)
     plt.savefig(filen_fig)
     plt.show()
 
-    
+    """
     # plot test losses
     x = [i+1 for i in range(len(test_nmse_losses))]
     plt.plot(x, test_nmse_losses, 'ro', linewidth=0.8, markersize=2)
@@ -448,4 +451,4 @@ if __name__ == "__main__":
     filen_fig = filename+"proj_test_nmse_losses.png"
     plt.savefig(filen_fig)
     plt.show()
-
+    """

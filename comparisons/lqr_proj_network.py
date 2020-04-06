@@ -346,8 +346,8 @@ if __name__ == "__main__":
 
         test_mse_losses.append(test_loss.item())
         norm = torch.norm(_y, p=2)**2
-        nmse_loss = test_loss.item()/norm
-        test_nmse_losses.append(nmse_loss.item())
+        #nmse_loss = test_loss.item()/norm
+        #test_nmse_losses.append(nmse_loss.item())
         true_values.append(norm.item())
 
         """
@@ -369,7 +369,7 @@ if __name__ == "__main__":
             #relative_losses.append(rel_loss)
             i += 1
         """
-        print("Batch loss: {}".format(test_loss.item()))
+        #print("Batch loss: {}".format(test_loss.item()))
 
     logging.info("  ---------- TESTING COMPLETED ----------")
 
@@ -378,9 +378,9 @@ if __name__ == "__main__":
     true_values_arr = np.array(true_values)
 
     np.savetxt('ex{}/mse/ex{}_lqr_test_mse_losses_ntrain_{}_ntest_{}.csv'.format(example, example, nsamples_train, nsamples_test), mse_arr, delimiter=',')
-    np.savetxt('ex{}/nmse/ex{}_lqr_test_nmse_losses_ntrain_{}_ntest_{}.csv'.format(example, example, nsamples_train, nsamples_test), nmse_arr, delimiter=',')
-    #np.savetxt('ex{}/true_values/ex{}_lqr_true_values_ntrain_{}_ntest_{}.csv'.format(example,example,nsamples_train, nsamples_test), true_values_arr, delimiter=',')
+    np.savetxt('ex{}/true_values/ex{}_lqr_true_values_ntrain_{}_ntest_{}.csv'.format(example,example,nsamples_train, nsamples_test), true_values_arr, delimiter=',')
 
+    #np.savetxt('ex{}/nmse/ex{}_lqr_test_nmse_losses_ntrain_{}_ntest_{}.csv'.format(example, example, nsamples_train, nsamples_test), nmse_arr, delimiter=',')
 
     title = "Example {} \n Test cases".format(example)
     xlabel = "$x_1$"

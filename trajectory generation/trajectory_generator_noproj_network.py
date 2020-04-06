@@ -102,7 +102,7 @@ if __name__ == "__main__":
     # define network
     print("\nRunning example: " + example + "\n")
     NN = Network([8,8])
-    NN.load_state_dict(torch.load(filename+'noproj_network_model.pt'))
+    NN.load_state_dict(torch.load('ex{}/networks/ex{}_noproj_network_model.pt'.format(example, example)))
     optimizer = torch.optim.Adam(NN.parameters(), lr = learning_rate)
     NN.to(device)
     m, n = NN.problem_params['m'], NN.problem_params['n']
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     xub, xlb = NN.problem_params['xub'], NN.problem_params['xlb']
     A_p, b_p = H[:,0:-1], H[:,-1]
 
-    initial_states = np.loadtxt(filename+"initial_states_{}.csv".format(ntrajs), delimiter=',')
+    initial_states = np.loadtxt("ex{}/initial_states/ex{}_initial_states_{}.csv".format(example, example, ntrajs), delimiter=',')
     #initial_states = np.loadtxt(filename+"init_states_trajectories_ntrajs_{}_N_{}.csv".format(ntrajs, N), delimiter=',')
     
     s = 0

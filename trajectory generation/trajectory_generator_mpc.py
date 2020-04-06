@@ -52,7 +52,7 @@ if m == 1:
   Bd = np.expand_dims(B, axis=1)
 
 
-initial_states = np.loadtxt(filename+"initial_states_{}.csv".format(ntrajs), delimiter=',')
+initial_states = np.loadtxt("ex{}/initial_states/ex{}_initial_states_{}.csv".format(example, example, ntrajs), delimiter=',')
 #initial_states = np.loadtxt(filename+"init_states_trajectories_ntrajs_{}_N_{}.csv".format(ntrajs, NT), delimiter=',')
 for sample in initial_states:
   if not polytope.is_inside(sample):

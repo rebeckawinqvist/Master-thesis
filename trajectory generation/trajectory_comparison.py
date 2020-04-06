@@ -23,7 +23,7 @@ if __name__ == "__main__":
     B = H[:,-1]
     polytope = Polytope(A,B,V)
 
-    to_plot = False
+    to_plot = True
 
     for i in range(ntrajs):
         traj_proj_NN = np.loadtxt(filename_trajs+'projNN_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
@@ -73,8 +73,8 @@ if __name__ == "__main__":
             #plt.savefig(filen_fig)
 
 
-            filen_fig = filename+'comparison_trajectory_1_{}_N_{}.png'.format(i+1, N)
-            plt.savefig(filen_fig)
+            filen_fig = 'ex{}/comparison_plots/ex{}_comparison_trajectory_{}_N_{}.png'.format(example, example, i+1, N)
+            #plt.savefig(filen_fig)
             plt.tight_layout()
             plt.subplots_adjust(top=0.832, bottom=0.132, left=0.07, right=0.979, hspace=0.2, wspace=0.179)
 
@@ -84,8 +84,9 @@ if __name__ == "__main__":
             filen_fig = filename_comp+'comp_ntrajs_{}_N_{}_traj_{}.png'.format(ntrajs, N, i+1)
             plt.savefig(filen_fig)
 
-
-            plt.show()
+            to_show = False
+            if to_show:
+                plt.show()
         
 
 

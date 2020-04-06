@@ -79,7 +79,7 @@ if __name__ == "__main__":
         plt.title(title)
         plt.xlabel(xlabel)
         plt.ylabel(ylabel) 
-        filen_fig = filename+"initial_states_{}.png".format(nsamples)
+        filen_fig = "ex{}/initial_states/ex{}_initial_states_{}.png".format(example, example, nsamples)
         #filen_fig = filename+"har"+("_samples_{}".format(len(samples)))+".png"
 
         plt.savefig(filen_fig)
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     print("Feasible samples: {} % ".format(100*len(feasible_samples)/len(samples))) 
     print("Kept samples: ", len(feasible_samples),"/",len(samples))
 
-    np.savetxt(filename+"initial_states_{}.csv".format(nsamples), feasible_samples, delimiter=",")
+    np.savetxt("ex{}/initial_states/ex{}_initial_states_{}.csv".format(example, example, nsamples), feasible_samples, delimiter=",")
     
 
 
