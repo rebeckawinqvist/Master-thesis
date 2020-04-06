@@ -226,6 +226,7 @@ if __name__ == "__main__":
     A_p, b_p = H[:,0:-1], H[:,-1]
 
     initial_states = np.loadtxt(filename+"initial_states_{}.csv".format(ntrajs), delimiter=',')
+    #initial_states = np.loadtxt(filename+"init_states_trajectories_ntrajs_{}_N_{}.csv".format(ntrajs, N), delimiter=',')
     
     s = 0
     for sample in initial_states:

@@ -23,7 +23,7 @@ if __name__ == "__main__":
     B = H[:,-1]
     polytope = Polytope(A,B,V)
 
-    to_plot = True
+    to_plot = False
 
     for i in range(ntrajs):
         traj_proj_NN = np.loadtxt(filename_trajs+'projNN_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')

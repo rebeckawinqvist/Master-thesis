@@ -13,7 +13,8 @@ if __name__ == "__main__":
     folder_name = 'ex'+example+'/'
     filename = folder_name+example_name+'_'
     filename_trajs = example_name+'/trajectories/'
-    filename_evals = example_name+'/evaluations/'
+    filename_evals = example_name+'/evaluations/ex{}_'.format(example)
+    filename_costs = example_name+'/cost_dicts/'
 
     A = np.loadtxt(filename+'A.csv', delimiter=',')
     B = np.loadtxt(filename+'B.csv', delimiter=',')
@@ -56,7 +57,7 @@ if __name__ == "__main__":
         
         for key in trajs_dict:            
             cost = 0
-            states, controls, color = trajs_dict[key][0:-1], np.expand_dims(controls_dict[key], axis=0), color_dict[key]
+            states, controls, color = trajs_dict[key][0:-1], (controls_dict[key]), color_dict[key]
             x0 = states[0,:]
             for (x,u) in zip(states, controls):
                 if m < 2:
@@ -72,6 +73,9 @@ if __name__ == "__main__":
 
     for key in costs_dict:
         print(key + ": ")
+        name_key = key.lower().replace(" ", "_")
+        fn = filename_costs+example_name+'_{}_cost_dict_ntrajs_{}_N_{}.csv'.format(name_key,ntrajs,N)
+        np.savetxt(fn, np.array(costs_dict[key]), delimiter=',')
         for c in costs_dict[key]:
             #print(c)
             pass
@@ -82,7 +86,6 @@ if __name__ == "__main__":
 
     
     # plot and save costs
-
     ms = 2
     lw = 1
 
@@ -91,7 +94,7 @@ if __name__ == "__main__":
     plt.plot(x, costs_dict["NoProj NN"], color='r', linestyle='-.', marker='^', label='NoProj NN', markersize=ms, linewidth=lw)
     plt.plot(x, costs_dict["LQR Proj NN"], color='g', linestyle=':', marker='s', label='LQR NN', markersize=ms, linewidth=lw)
     plt.plot(x, costs_dict["MPC"], color='y', linestyle='-', marker='*', label='MPC', markersize=ms, linewidth=lw)
-    plt.legend(loc = 'upper left')
+    plt.legend(loc = 'upper right')
 
     plt.title("Trajectory evaluation")
     plt.xlabel("Trajectory")
@@ -106,7 +109,7 @@ if __name__ == "__main__":
     plt.scatter(x, costs_dict["NoProj NN"], color='r', linestyle='-.', marker='^', label='NoProj NN', s=ms)
     plt.scatter(x, costs_dict["LQR Proj NN"], color='g', linestyle=':', marker='s', label='LQR NN', s=ms)
     plt.scatter(x, costs_dict["MPC"], color='y', linestyle='-', marker='*', label='MPC', s=ms)
-    plt.legend(loc = 'upper left')
+    plt.legend(loc = 'upper right')
     plt.show()
 
     np.savetxt(filename_evals+'eval_projNN_ntrajs_{}_N_{}_alltrajs'.format(ntrajs, N)+".csv", costs_dict["Proj NN"], delimiter=',')

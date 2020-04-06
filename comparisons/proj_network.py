@@ -225,14 +225,16 @@ if __name__ == "__main__":
     # define network
     print("\nRunning example: " + example + "\n")
     NN = Network([8,8])
-    #NN.load_state_dict(torch.load('saved_model.pt'), strict=False)
     optimizer = torch.optim.Adam(NN.parameters(), lr = learning_rate)
     NN.to(device)
     m = NN.problem_params['m']
 
     # data
-    f_train_in, f_train_out = filename+'input_data_nsamples_{}_train.csv'.format(nsamples_train), filename+'output_data_nsamples_{}_train.csv'.format(nsamples_train)
-    f_test_in, f_test_out = filename+'input_data_nsamples_{}_test.csv'.format(nsamples_test), filename+'output_data_nsamples_{}_test.csv'.format(nsamples_test)
+    fin = 'ex{}/input_data/ex{}_'.format(example, example)
+    fout = 'ex{}/output_data/ex{}_'.format(example, example)
+
+    f_train_in, f_train_out = fin+'input_data_nsamples_{}_train.csv'.format(nsamples_train), fout+'output_data_nsamples_{}_train.csv'.format(nsamples_train)
+    f_test_in, f_test_out = fin+'input_data_nsamples_{}_test.csv'.format(nsamples_test), fout+'output_data_nsamples_{}_test.csv'.format(nsamples_test)
     
     X_train = torch.from_numpy(np.loadtxt(f_train_in, delimiter=','))
     Y_train = torch.from_numpy(np.loadtxt(f_train_out, delimiter=',')[:,0:m])
@@ -250,52 +252,56 @@ if __name__ == "__main__":
     train_set = DataLoader(ds_train, batch_size=batch_size_train)
     test_set = DataLoader(ds_test, batch_size=batch_size_test)
 
+    to_train = True
+    if to_train:
+        logging.info("  ---------- TRAINING STARTED ----------")
+        # train the model
+        epochs_losses = []
+        for epoch in range(nepochs):
+            batch_losses = []
+            #i = 0
+            for ix, (x, y) in enumerate(train_set):
+                if y.shape[0] != batch_size_train:
+                    continue
+                
+                _x = Variable(x).float()
+                _y = Variable(y).float()
+                _y = _y.unsqueeze(-1)
+                _y.expand(batch_size_train,m,1)
 
-    logging.info("  ---------- TRAINING STARTED ----------")
-    # train the model
-    epochs_losses = []
-    for epoch in range(nepochs):
-        batch_losses = []
-        #i = 0
-        for ix, (x, y) in enumerate(train_set):
-            if y.shape[0] != batch_size_train:
-                continue
-            
-            _x = Variable(x).float()
-            _y = Variable(y).float()
-            _y = _y.unsqueeze(-1)
-            _y.expand(batch_size_train,m,1)
+                # forward pass
+                output = NN(_x)
+                loss = criterion(output, _y)
+                #loss.requires_grad = True
 
-            # forward pass
-            output = NN(_x)
-            loss = criterion(output, _y)
-            #loss.requires_grad = True
+                # backward and optimize
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
 
-            # backward and optimize
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+                batch_losses.append(loss.item())
+                #all_losses.append(loss.item())
 
-            batch_losses.append(loss.item())
-            #all_losses.append(loss.item())
+            mbl = np.mean(np.sqrt(batch_losses))
+            mbl = np.mean(batch_losses)
+            epochs_losses.append(mbl)
+            if epoch % 2 == 0:
+                print("Epoch [{}/{}], Batch loss: {}".format(epoch, nepochs, mbl))
 
-        mbl = np.mean(np.sqrt(batch_losses))
-        mbl = np.mean(batch_losses)
-        epochs_losses.append(mbl)
-        if epoch % 2 == 0:
-            print("Epoch [{}/{}], Batch loss: {}".format(epoch, nepochs, mbl))
+        logging.info("  ---------- TRAINING COMPLETED ----------")
+        batch_size = batch_size_test
 
-    logging.info("  ---------- TRAINING COMPLETED ----------")
-    batch_size = batch_size_test
-
-    
-    """ UNCOMMENT TO SAVE MODEL """
-    torch.save(NN.state_dict(), filename+'proj_network_model_ntrain_{}_nepochs_{}.pt'.format(nsamples_train, nepochs))
+        
+        """ UNCOMMENT TO SAVE MODEL """
+        torch.save(NN.state_dict(), 'ex{}/networks/ex{}_proj_network_model_ntrain_{}.pt'.format(example, example, nsamples_train))
+        epochs_arr = np.array(epochs_losses)
+    else:
+        NN.load_state_dict(torch.load('ex{}/networks/ex{}_proj_network_model_ntrain_{}.pt'.format(example, example, nsamples_train)))
 
     
     # TEST MODEL
     logging.info("  ---------- TESTING STARTED ----------")
-
+    batch_size = batch_size_test
 
     # plot if n = 2
     n = NN.problem_params['n']
@@ -320,6 +326,8 @@ if __name__ == "__main__":
 
     test_mse_losses = []
     test_nmse_losses = []
+    true_values = []
+
     for ix, (x, y) in enumerate(test_set):
         _x = Variable(x).float()
         _y = Variable(y).float()
@@ -333,10 +341,19 @@ if __name__ == "__main__":
         test_loss = criterion(test_output, _y)
 
         test_mse_losses.append(test_loss.item())
+        norm = torch.norm(_y, p=2)**2
+        nmse_loss = test_loss.item()/norm
+        test_nmse_losses.append(nmse_loss.item())
+        true_values.append(norm.item())
 
+        """
         diff = (_y - test_output).detach().numpy()
         abs_diff = np.absolute(diff)
         rel_losses = np.divide(abs_diff,np.absolute(_y))
+
+        print("mse loss: ", test_loss.item())
+        print("absolute val: ", torch.norm(_y, p=2)**2)
+        print("nmse loss: ", nmse_loss.item(), "\n\n")
 
         i = 0
         for rel_loss in rel_losses:
@@ -349,18 +366,21 @@ if __name__ == "__main__":
 
             test_nmse_losses.append(rel_loss.data.numpy().flatten()[0])
             i += 1
+        """
         #print("Batch loss: {}".format(test_loss.item()))
 
     logging.info("  ---------- TESTING COMPLETED ----------")
 
     mse_arr = np.array(test_mse_losses)
     nmse_arr = np.array(test_nmse_losses)
-    epochs_arr = np.array(epochs_losses)
+    true_values_arr = np.array(true_values)
 
-    np.savetxt(filename+'test_mse_losses_ntrain_{}_ntest_{}_nepochs_{}.csv'.format(nsamples_train, nsamples_test, nepochs), mse_arr, delimiter=',')
-    np.savetxt(filename+'test_nmse_losses_ntrain_{}_ntest_{}_nepochs_{}.csv'.format(nsamples_train, nsamples_test, nepochs), nmse_arr, delimiter=',')
-    np.savetxt(filename+'train_losses_ntrain_{}_ntest_{}_nepochs_{}.csv'.format(nsamples_train, nsamples_test, nepochs), epochs_arr, delimiter=',')
+    folder_name = 'ex'+example+'/'
+    filename = folder_name+example_name+'_'
 
+    np.savetxt('ex{}/mse/ex{}_test_mse_losses_ntrain_{}_ntest_{}.csv'.format(example, example, nsamples_train, nsamples_test), mse_arr, delimiter=',')
+    np.savetxt('ex{}/nmse/ex{}_test_nmse_losses_ntrain_{}_ntest_{}.csv'.format(example, example, nsamples_train, nsamples_test), nmse_arr, delimiter=',')
+    #np.savetxt('ex{}/true_values/ex{}_true_values_ntrain_{}_ntest_{}.csv'.format(example,example,nsamples_train, nsamples_test), true_values_arr, delimiter=',')
 
     title = "Example {} \n Test cases".format(example)
     xlabel = "$x_1$"
@@ -368,26 +388,11 @@ if __name__ == "__main__":
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    filen_fig = filename+"difficulty_points_ntrain_{}_ntest_{}_nepochs_{}.png".format(nsamples_train, nsamples_test, nepochs)
+    filen_fig = "ex{}/plots/ex{}_difficulty_points_ntrain_{}_ntest_{}_nepochs_{}.png".format(example, example, nsamples_train, nsamples_test, nepochs)
     plt.savefig(filen_fig)
     plt.show()
     print("Mean MSE loss: ", statistics.mean(test_mse_losses))
     print("Mean NMSE loss: ", statistics.mean(test_nmse_losses))
-
-
-    # plot train losses
-    x = [i+1 for i in range(len(epochs_losses))]
-    plt.plot(x, epochs_losses, 'ro', linewidth=0.8, markersize=2)
-    xlabel = "Epoch"
-    ylabel = "MSE loss"
-    title = "Example {} \n Training samples: {}".format(example, nsamples_train)
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel) 
-
-    filen_fig = filename+"train_losses_ntrain_{}_ntest_{}_nepochs_{}.png".format(nsamples_train, nsamples_test, nepochs)
-    plt.savefig(filen_fig)
-    plt.show()
 
 
     # plot test losses
@@ -400,7 +405,7 @@ if __name__ == "__main__":
     plt.xlabel(xlabel)
     plt.ylabel(ylabel) 
 
-    filen_fig = filename+"test_mse_losses_ntrain_{}_ntest_{}_nepochs_{}.png".format(nsamples_train, nsamples_test, nepochs)
+    filen_fig = "ex{}/mse/ex{}_test_mse_losses_ntrain_{}_ntest_{}_nepochs_{}.png".format(example, example, nsamples_train, nsamples_test, nepochs)
     plt.savefig(filen_fig)
     plt.show()
 
@@ -415,10 +420,24 @@ if __name__ == "__main__":
     plt.xlabel(xlabel)
     plt.ylabel(ylabel) 
 
-    filen_fig = filename+"test_nmse_losses_ntrain_{}_ntest_{}_nepochs_{}.png".format(nsamples_train, nsamples_test, nepochs)
+    filen_fig = "ex{}/nmse/ex{}_test_nmse_losses_ntrain_{}_ntest_{}_nepochs_{}.png".format(example, example, nsamples_train, nsamples_test, nepochs)
     plt.savefig(filen_fig)
-    plt.show()
-
-    
+    plt.show()    
 
 
+    if to_train:
+        np.savetxt('ex{}/train_losses/ex{}_train_losses_ntrain_{}_ntest_{}_nepochs_{}.csv'.format(example, example, nsamples_train, nsamples_test, nepochs), epochs_arr, delimiter=',')
+
+        # plot train losses
+        x = [i+1 for i in range(len(epochs_losses))]
+        plt.plot(x, epochs_losses, 'ro', linewidth=0.8, markersize=2)
+        xlabel = "Epoch"
+        ylabel = "MSE loss"
+        title = "Example {} \n Training samples: {}".format(example, nsamples_train)
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel) 
+
+        filen_fig = "ex{}/train_losses/ex{}_train_losses_ntrain_{}_ntest_{}_nepochs_{}.png".format(example, example, nsamples_train, nsamples_test, nepochs)
+        #plt.savefig(filen_fig)
+        plt.show()

@@ -213,7 +213,7 @@ if __name__ == "__main__":
     polytope = Polytope(A_p, b_p)
 
     initial_states = np.loadtxt(filename+"initial_states_{}.csv".format(ntrajs), delimiter=',')
-
+    #initial_states = np.loadtxt(filename+"init_states_trajectories_ntrajs_{}_N_{}.csv".format(ntrajs, N), delimiter=',')
     s = 0
     for sample in initial_states:
         x0 = sample

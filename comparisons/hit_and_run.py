@@ -103,7 +103,7 @@ if __name__ == "__main__":
     print("Feasible samples [%]: ", 100*len(feasible_samples)/len(samples))
     print("Kept samples: ", len(feasible_samples),"/",len(samples))
 
-    np.savetxt(filename+"har_nsamples_{}_{}.csv".format(len(feasible_samples), gen_type), feasible_samples, delimiter=",")
+    np.savetxt("ex{}/har_samples/ex{}_har_nsamples_{}_{}.csv".format(example, example, len(feasible_samples), gen_type), feasible_samples, delimiter=",")
 
     
 

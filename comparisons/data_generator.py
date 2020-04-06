@@ -186,8 +186,8 @@ print("Infeasible data [%]: ", 100*len(infeasible_states)/len(states))
 print("Kept data: ", len(feasible_states), "/", len(states))
 
 
-filenameIn = filename+'input_data_nsamples_{}_{}.csv'.format(nsamples, gen_type)
-filenameOut = filename+'output_data_nsamples_{}_{}.csv'.format(nsamples, gen_type)
+filenameIn = 'ex{}/input_data/ex{}_input_data_nsamples_{}_{}.csv'.format(example, example, nsamples, gen_type)
+filenameOut = 'ex{}/output_date/ex{}_output_data_nsamples_{}_{}.csv'.format(example, example, nsamples, gen_type)
 
 savetxt(filenameIn, feasible_states, delimiter = ',')
 savetxt(filenameOut, feasible_inputs, delimiter = ',')

@@ -53,6 +53,7 @@ if m == 1:
 
 
 initial_states = np.loadtxt(filename+"initial_states_{}.csv".format(ntrajs), delimiter=',')
+#initial_states = np.loadtxt(filename+"init_states_trajectories_ntrajs_{}_N_{}.csv".format(ntrajs, NT), delimiter=',')
 for sample in initial_states:
   if not polytope.is_inside(sample):
     print("False")    
@@ -162,8 +163,3 @@ for sample in initial_states:
 
 print("Not solved: ", len(not_solved), "/", ntrajs)
 print("Solved: ", len(feasible_states), "/", ntrajs)
-
-
-
-#savetxt(filenameIn, feasible_states, delimiter = ',')
-#savetxt(filenameOut, feasible_inputs, delimiter = ',')
