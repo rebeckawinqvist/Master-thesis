@@ -13,13 +13,26 @@ import statistics
 from sklearn.model_selection import train_test_split
 import sys
 import matplotlib.pyplot as plt
+from datetime import datetime
+from makedirs import *
 
 example = str(sys.argv[1]).upper()
 num_epochs = int(sys.argv[2])
+if len(sys.argv) > 3:
+    date = sys.argv[3]
+else:
+    date = datetime.date(datetime.now())
+
 
 example_name = 'ex'+example
 folder_name = 'ex'+example+'/'
 filename = folder_name+example_name+'_'
+
+try:
+    makedirs(example, date)
+except:
+    print("Folders already exist.")
+
 
 # (GLOBAL) network settings
 #num_epochs = 200
@@ -237,7 +250,6 @@ if __name__ == "__main__":
     Y_test = torch.from_numpy(np.loadtxt(f_test_out, delimiter=',')[:,0:m])
     
     batch_size = batch_size_train
-    print("Batch size train: ", batch_size)
     # split data into training set and test set
     #train, test = train_test_split(list(range(X.shape[0])), test_size=.25)
 
@@ -303,7 +315,7 @@ if __name__ == "__main__":
     logging.info("  ---------- TRAINING COMPLETED ----------")
 
     """ UNCOMMENT TO SAVE MODEL """
-    torch.save(NN.state_dict(), 'ex{}/networks/ex{}_proj_network_model_batch_size_{}.pt'.format(example, example, batch_size_train))
+    torch.save(NN.state_dict(), 'ex{}/{}/networks/ex{}_proj_network_model.pt'.format(example, date, example))
 
     
     # TEST MODEL
@@ -390,13 +402,13 @@ if __name__ == "__main__":
     epochs_arr = np.array(epochs_losses)
     true_values_arr = np.array(true_values)
 
-    filename_test = 'ex{}/test_losses/ex{}_'.format(example, example)
-    filename_train = 'ex{}/train_losses/ex{}_'.format(example, example)
+    filename_test = 'ex{}/{}/test_losses/ex{}_'.format(example, date, example)
+    filename_train = 'ex{}/{}/train_losses/ex{}_'.format(example, date, example)
 
     np.savetxt(filename_test+'proj_test_mse_losses.csv', mse_arr, delimiter=',')
     #np.savetxt(filename+'proj_test_nmse_losses.csv', nmse_arr, delimiter=',')
     np.savetxt(filename_train+'proj_train_losses.csv', epochs_arr, delimiter=',')
-    np.savetxt('ex{}/true_values/ex{}_true_values_ntrain_{}_ntest_{}.csv'.format(example,example,nsamples_train, nsamples_test), true_values_arr, delimiter=',')
+    np.savetxt('ex{}/{}/true_values/ex{}_true_values.csv'.format(example, date, example), true_values_arr, delimiter=',')
 
     title = "Example {} \n Test cases".format(example)
     xlabel = "$x_1$"
@@ -404,7 +416,7 @@ if __name__ == "__main__":
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    filen_fig = "ex{}/plots/ex{}_proj_difficulty_points.png".format(example, example)
+    filen_fig = "ex{}/{}/plots/ex{}_proj_difficulty_points.png".format(example, date, example)
     plt.savefig(filen_fig)
     plt.show()
 
@@ -418,7 +430,7 @@ if __name__ == "__main__":
     plt.xlabel(xlabel)
     plt.ylabel(ylabel) 
 
-    filen_fig = "ex{}/train_losses/ex{}_proj_train_losses.png".format(example, example)
+    filen_fig = "ex{}/{}/train_losses/ex{}_proj_train_losses.png".format(example, date, example)
     plt.savefig(filen_fig)
     plt.show()
 
@@ -433,7 +445,7 @@ if __name__ == "__main__":
     plt.xlabel(xlabel)
     plt.ylabel(ylabel) 
 
-    filen_fig = "ex{}/test_losses/ex{}_proj_test_mse_losses.png".format(example, example)
+    filen_fig = "ex{}/{}/test_losses/ex{}_proj_test_mse_losses.png".format(example, date, example)
     plt.savefig(filen_fig)
     plt.show()
 

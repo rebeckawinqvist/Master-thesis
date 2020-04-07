@@ -4,14 +4,18 @@ logging.getLogger().setLevel(logging.INFO)
 import statistics           
 import sys
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 example = str(sys.argv[1]).upper()
+if len(sys.argv) > 2:
+    date = sys.argv[2]
+else:
+    date = datetime.date(datetime.now())
 
-example_name = 'ex'+example
-filename = "ex"+example+"\ex"+example+"_"
-#folder_name_mse, folder_name_nmse = 'ex'+example+'/'+
-filename_mse, filename_nmse = 'ex'+example+'/mse/ex'+example+'_', 'ex'+example+'/nmse/ex'+example+'_'
-filename_tv = 'ex'+example+'/true_values/ex'+example+'_'
+filename = "ex{}/ex{}_".format(example, example)
+filename_mse = "ex{}/{}/mse/ex{}_".format(example, date, example)
+filename_nmse = "ex{}/{}/nmse/ex{}_".format(example, date, example)
+filename_tv = "ex{}/{}/true_values/ex{}_".format(example, date, example)
 
 if example == "E":
     trains = [200, 500, 1000, 1500]
@@ -131,14 +135,14 @@ plt.show()
 
 
 # FOR MATLAB
-np.savetxt("matlab_exp/ex{}_comp_act_train_samples.csv".format(example), np.array(act_trains), delimiter=',')
-np.savetxt("matlab_exp/ex{}_comp_train_samples.csv".format(example), np.array(trains), delimiter=',')
+np.savetxt("ex{}/{}/matlab_exp/ex{}_comp_act_train_samples.csv".format(example, date, example), np.array(act_trains), delimiter=',')
+np.savetxt("ex{}/{}/matlab_exp/ex{}_comp_train_samples.csv".format(example, date, example), np.array(trains), delimiter=',')
 
-np.savetxt("matlab_exp/ex{}_proj_mse_comp.csv".format(example), np.array(proj_mse_v), delimiter=',')
-np.savetxt("matlab_exp/ex{}_noproj_mse_comp.csv".format(example), np.array(noproj_mse_v), delimiter=',')
-np.savetxt("matlab_exp/ex{}_lqr_proj_mse_comp.csv".format(example), np.array(lqr_mse_v), delimiter=',')
+np.savetxt("ex{}/{}/matlab_exp/ex{}_proj_mse_comp.csv".format(example, date, example), np.array(proj_mse_v), delimiter=',')
+np.savetxt("ex{}/{}/matlab_exp/ex{}_noproj_mse_comp.csv".format(example, date, example), np.array(noproj_mse_v), delimiter=',')
+np.savetxt("ex{}/{}/matlab_exp/ex{}_lqr_proj_mse_comp.csv".format(example, date, example), np.array(lqr_mse_v), delimiter=',')
 
-np.savetxt("matlab_exp/ex{}_proj_nmse_comp.csv".format(example), np.array(proj_nmse_v), delimiter=',')
-np.savetxt("matlab_exp/ex{}_noproj_nmse_comp.csv".format(example), np.array(noproj_nmse_v), delimiter=',')
-np.savetxt("matlab_exp/ex{}_lqr_proj_nmse_comp.csv".format(example), np.array(lqr_nmse_v), delimiter=',')
+np.savetxt("ex{}/{}/matlab_exp/ex{}_proj_nmse_comp.csv".format(example, date, example), np.array(proj_nmse_v), delimiter=',')
+np.savetxt("ex{}/{}/matlab_exp/ex{}_noproj_nmse_comp.csv".format(example, date, example), np.array(noproj_nmse_v), delimiter=',')
+np.savetxt("ex{}/{}/matlab_exp/ex{}_lqr_proj_nmse_comp.csv".format(example, date, example), np.array(lqr_nmse_v), delimiter=',')
 

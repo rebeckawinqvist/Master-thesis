@@ -2,6 +2,7 @@ import numpy as np
 import sys
 import matplotlib.pyplot as plt 
 from polytope import Polytope 
+from datetime import datetime
 
 
 
@@ -9,12 +10,15 @@ if __name__ == "__main__":
     example = str(sys.argv[1]).upper()
     ntrajs = int(sys.argv[2])
     N = int(sys.argv[3])
-    example_name = 'ex'+example
-    folder_name = 'ex'+example+'/'
-    filename = folder_name+example_name+'_'
-    filename_trajs = example_name+'/trajectories/'
-    filename_evals = example_name+'/evaluations/ex{}_'.format(example)
-    filename_costs = example_name+'/cost_dicts/'
+    if len(sys.argv) > 4:
+        date = sys.argv[4]
+    else:
+        date = datetime.date(datetime.now())
+
+    filename = "ex{}/ex{}_".format(example, example)
+    filename_trajs = "ex{}/{}/trajectories/".format(example, date)
+    filename_evals = "ex{}/{}/evaluations/ex{}_".format(example, date, example)
+    filename_costs = "ex{}/{}/cost_dicts/".format(example, date)
 
     A = np.loadtxt(filename+'A.csv', delimiter=',')
     B = np.loadtxt(filename+'B.csv', delimiter=',')
@@ -74,7 +78,7 @@ if __name__ == "__main__":
     for key in costs_dict:
         print(key + ": ")
         name_key = key.lower().replace(" ", "_")
-        fn = filename_costs+example_name+'_{}_cost_dict_ntrajs_{}_N_{}.csv'.format(name_key,ntrajs,N)
+        fn = filename_costs+'ex{}_{}_cost_dict_ntrajs_{}_N_{}.csv'.format(example, name_key, ntrajs, N)
         np.savetxt(fn, np.array(costs_dict[key]), delimiter=',')
         for c in costs_dict[key]:
             #print(c)

@@ -2,18 +2,21 @@ import numpy as np
 import sys
 import matplotlib.pyplot as plt 
 from polytope import Polytope 
-
+from datetime import datetime
 
 
 if __name__ == "__main__":
     example = str(sys.argv[1]).upper()
     ntrajs = int(sys.argv[2])
     N = int(sys.argv[3])
-    example_name = 'ex'+example
-    folder_name = 'ex'+example+'/'
-    filename = folder_name+example_name+'_'
-    filename_trajs = example_name+'/trajectories/'
-    filename_comp = example_name+'/comparisons/'
+    if len(sys.argv) > 4:
+        date = sys.argv[4]
+    else:
+        date = datetime.date(datetime.now())
+
+    filename = "ex{}/ex{}_".format(example, example)
+    filename_trajs = "ex{}/{}/trajectories/".format(example, date)
+    filename_comp = "ex{}/{}/comparisons/".format(example, date)
 
     H = np.loadtxt(filename+'cinfH.csv', delimiter=',')
     V = np.loadtxt(filename+'cinfV.csv', delimiter=',')
@@ -35,7 +38,7 @@ if __name__ == "__main__":
         #names = ["Proj NN", "NoProj NN", "MPC"]
         #table = dict(zip(names, trajs))
 
-        if to_plot:
+        if to_plot and polytope.n <= 2:
             # Points
             plt.subplot(1,2,1)
             polytope.plot_poly(xlb, xub, show=False)
@@ -73,7 +76,7 @@ if __name__ == "__main__":
             #plt.savefig(filen_fig)
 
 
-            filen_fig = 'ex{}/comparison_plots/ex{}_comparison_trajectory_{}_N_{}.png'.format(example, example, i+1, N)
+            filen_fig = 'ex{}/{}/comparison_plots/ex{}_comparison_trajectory_{}_N_{}.png'.format(example, date, example, i+1, N)
             #plt.savefig(filen_fig)
             plt.tight_layout()
             plt.subplots_adjust(top=0.832, bottom=0.132, left=0.07, right=0.979, hspace=0.2, wspace=0.179)

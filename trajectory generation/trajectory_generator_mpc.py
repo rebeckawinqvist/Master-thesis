@@ -7,15 +7,19 @@ import sys
 import random
 from polytope import Polytope
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 example = str(sys.argv[1]).upper()
 ntrajs = int(sys.argv[2])
 NT = int(sys.argv[3])
+if len(sys.argv) > 4:
+    date = sys.argv[4]
+else:
+    date = datetime.date(datetime.now())
 
-example_name = 'ex'+example
-folder_name = 'ex'+example+'/'
-filename = folder_name+example_name+'_'
-filename_save = 'ex'+example+'/trajectories/'
+
+filename = "ex{}/ex{}_".format(example, example)
+filename_save = "ex{}/{}/trajectories/".format(example, date)
 
 # load data
 A = np.loadtxt(filename+'A.csv', delimiter=',')

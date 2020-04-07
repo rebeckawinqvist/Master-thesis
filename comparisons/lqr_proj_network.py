@@ -13,15 +13,24 @@ import statistics
 from sklearn.model_selection import train_test_split
 import sys
 import matplotlib.pyplot as plt
+from datetime import datetime
+from makedirs import *
 
 example = str(sys.argv[1]).upper()
 nsamples_train = int(sys.argv[2])
 nsamples_test = int(sys.argv[3])
 nepochs = int(sys.argv[4])
+if len(sys.argv) > 5:
+    date = sys.argv[5]
+else:
+    date = datetime.date(datetime.now())
 
-example_name = 'ex'+example
-folder_name = 'ex'+example+'/'
-filename = folder_name+example_name+'_'
+try:
+    makedirs(example, date)
+except:
+    print("Folders already exist.")
+
+filename = "ex{}/ex{}_".format(example, example)
 
 # (GLOBAL) network settings
 #num_epochs = 200
@@ -297,10 +306,10 @@ if __name__ == "__main__":
 
         epochs_arr = np.array(epochs_losses)
         """ UNCOMMENT TO SAVE MODEL """
-        torch.save(NN.state_dict(), 'ex{}/networks/ex{}_lqr_proj_network_model_ntrain_{}.pt'.format(example, example, nsamples_train))
+        torch.save(NN.state_dict(), 'ex{}/{}/networks/ex{}_lqr_proj_network_model_ntrain_{}.pt'.format(example, date, example, nsamples_train))
         epochs_arr = np.array(epochs_losses)
     else:
-        NN.load_state_dict(torch.load('ex{}/networks/ex{}_lqr_proj_network_model_ntrain_{}.pt'.format(example, example, nsamples_train)))
+        NN.load_state_dict(torch.load('ex{}/{}/networks/ex{}_lqr_proj_network_model_ntrain_{}.pt'.format(example, date, example, nsamples_train)))
 
     # test the model
     logging.info("  ---------- TESTING STARTED ----------")
@@ -377,8 +386,8 @@ if __name__ == "__main__":
     nmse_arr = np.array(test_nmse_losses)
     true_values_arr = np.array(true_values)
 
-    np.savetxt('ex{}/mse/ex{}_lqr_test_mse_losses_ntrain_{}_ntest_{}.csv'.format(example, example, nsamples_train, nsamples_test), mse_arr, delimiter=',')
-    np.savetxt('ex{}/true_values/ex{}_lqr_true_values_ntrain_{}_ntest_{}.csv'.format(example,example,nsamples_train, nsamples_test), true_values_arr, delimiter=',')
+    np.savetxt('ex{}/{}/mse/ex{}_lqr_test_mse_losses_ntrain_{}_ntest_{}.csv'.format(example, date, example, nsamples_train, nsamples_test), mse_arr, delimiter=',')
+    np.savetxt('ex{}/{}/true_values/ex{}_lqr_true_values_ntrain_{}_ntest_{}.csv'.format(example, date, example, nsamples_train, nsamples_test), true_values_arr, delimiter=',')
 
     #np.savetxt('ex{}/nmse/ex{}_lqr_test_nmse_losses_ntrain_{}_ntest_{}.csv'.format(example, example, nsamples_train, nsamples_test), nmse_arr, delimiter=',')
 
@@ -388,12 +397,9 @@ if __name__ == "__main__":
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    filen_fig = "ex{}/plots/ex{}_lqr_difficulty_points_ntrain_{}_ntest_{}_nepochs_{}.png".format(example, example, nsamples_train, nsamples_test, nepochs)
+    filen_fig = "ex{}/{}/plots/ex{}_lqr_difficulty_points_ntrain_{}_ntest_{}_nepochs_{}.png".format(example, date, example, nsamples_train, nsamples_test, nepochs)
     plt.savefig(filen_fig)
     plt.show()
-    print("Mean MSE loss: ", statistics.mean(test_mse_losses))
-    print("Mean NMSE loss: ", statistics.mean(test_nmse_losses))
-
 
     # plot test losses
     x = [i+1 for i in range(len(test_mse_losses))]
@@ -405,11 +411,11 @@ if __name__ == "__main__":
     plt.xlabel(xlabel)
     plt.ylabel(ylabel) 
 
-    filen_fig = "ex{}/mse/ex{}_lqr_test_mse_losses_ntrain_{}_ntest_{}_nepochs_{}.png".format(example, example, nsamples_train, nsamples_test, nepochs)
+    filen_fig = "ex{}/{}/mse/ex{}_lqr_test_mse_losses_ntrain_{}_ntest_{}_nepochs_{}.png".format(example, date, example, nsamples_train, nsamples_test, nepochs)
     plt.savefig(filen_fig)
     plt.show()
 
-    
+    """
     # plot test losses
     x = [i+1 for i in range(len(test_nmse_losses))]
     plt.plot(x, test_nmse_losses, 'ro', linewidth=0.8, markersize=2)
@@ -420,13 +426,14 @@ if __name__ == "__main__":
     plt.xlabel(xlabel)
     plt.ylabel(ylabel) 
 
-    filen_fig = "ex{}/nmse/ex{}_lqr_test_nmse_losses_ntrain_{}_ntest_{}_nepochs_{}.png".format(example, example, nsamples_train, nsamples_test, nepochs)
+    filen_fig = "ex{}/{}/nmse/ex{}_lqr_test_nmse_losses_ntrain_{}_ntest_{}_nepochs_{}.png".format(example, date, example, nsamples_train, nsamples_test, nepochs)
     plt.savefig(filen_fig)
     plt.show()
+    """
 
     if to_train:
         # plot train losses
-        np.savetxt('ex{}/train_losses/ex{}_lqr_train_losses_ntrain_{}_ntest_{}_nepochs_{}.csv'.format(example, example, nsamples_train, nsamples_test, nepochs), epochs_arr, delimiter=',')
+        np.savetxt('ex{}/{}/train_losses/ex{}_lqr_train_losses_ntrain_{}_ntest_{}_nepochs_{}.csv'.format(example, date, example, nsamples_train, nsamples_test, nepochs), epochs_arr, delimiter=',')
 
         x = [i+1 for i in range(len(epochs_losses))]
         plt.plot(x, epochs_losses, 'ro', linewidth=0.8, markersize=2)
@@ -437,7 +444,7 @@ if __name__ == "__main__":
         plt.xlabel(xlabel)
         plt.ylabel(ylabel) 
 
-        filen_fig = "ex{}/train_losses/ex{}_lqr_train_losses_ntrain_{}_ntest_{}_nepochs_{}.png".format(example, example, nsamples_train, nsamples_test, nepochs)
+        filen_fig = "ex{}/{}/train_losses/ex{}_lqr_train_losses_ntrain_{}_ntest_{}_nepochs_{}.png".format(example, date, example, nsamples_train, nsamples_test, nepochs)
         plt.savefig(filen_fig)
         plt.show()
 

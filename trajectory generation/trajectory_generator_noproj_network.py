@@ -14,16 +14,19 @@ from sklearn.model_selection import train_test_split
 import sys
 import matplotlib.pyplot as plt
 from polytope import Polytope
+from datetime import datetime
 
 example = str(sys.argv[1]).upper()
 ntrajs = int(sys.argv[2])
 N = int(sys.argv[3])
+if len(sys.argv) > 4:
+    date = sys.argv[4]
+else:
+    date = datetime.date(datetime.now())
 
 
-example_name = 'ex'+example
-folder_name = 'ex'+example+'/'
-filename = folder_name+example_name+'_'
-filename_save = 'ex'+example+'/trajectories/'
+filename = "ex{}/ex{}_".format(example, example)
+filename_save = "ex{}/{}/trajectories/".format(example, date)
 
 # (GLOBAL) network settings
 #num_epochs = 200
@@ -102,7 +105,7 @@ if __name__ == "__main__":
     # define network
     print("\nRunning example: " + example + "\n")
     NN = Network([8,8])
-    NN.load_state_dict(torch.load('ex{}/networks/ex{}_noproj_network_model.pt'.format(example, example)))
+    NN.load_state_dict(torch.load('ex{}/{}/networks/ex{}_noproj_network_model.pt'.format(example, date, example)))
     optimizer = torch.optim.Adam(NN.parameters(), lr = learning_rate)
     NN.to(device)
     m, n = NN.problem_params['m'], NN.problem_params['n']
