@@ -28,10 +28,7 @@ example_name = 'ex'+example
 folder_name = 'ex'+example+'/'
 filename = folder_name+example_name+'_'
 
-try:
-    makedirs(example, date)
-except:
-    print("Folders already exist.")
+makedirs(example, date)
 
 
 # (GLOBAL) network settings

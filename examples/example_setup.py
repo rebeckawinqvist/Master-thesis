@@ -12,7 +12,7 @@ filename = 'ex'+example+'/ex'+example+'_'
 A = np.loadtxt(filename+'A.csv', delimiter=',')
 B = np.loadtxt(filename+'B.csv', delimiter=',')
 H = np.loadtxt(filename+'cinfH.csv', delimiter=',')
-L = np.loadtxt(filename+'L.csv', delimiter=',')
+#L = np.loadtxt(filename+'L.csv', delimiter=',')
 xlb = np.loadtxt(filename+'xlb.csv', delimiter=',')
 xub =  np.loadtxt(filename+'xub.csv', delimiter=',')
 ulb = np.loadtxt(filename+'ulb.csv', delimiter=',')

@@ -99,20 +99,20 @@ axis([model.x.min(1)-border,model.x.max(1)+border,model.x.min(2)-border,model.x.
 
 
 % write system dynamics to file
-if save_matrices
-    dlmwrite([pwd '\ExA\exA_A.csv'], A)
-    dlmwrite([pwd '\ExA\exA_B.csv'], B)
-    dlmwrite([pwd '\ExA\exA_xlb.csv'], model.x.min)
-    dlmwrite([pwd '\ExA\exA_xub.csv'], model.x.max)
-    dlmwrite([pwd '\ExA\exA_ulb.csv'], model.u.min)
-    dlmwrite([pwd '\ExA\exA_uub.csv'], model.u.max)
-    dlmwrite([pwd '\ExA\exA_cinfH.csv'], Cinf.H)
-    dlmwrite([pwd '\ExA\exA_cinfV.csv'], Cinf.V)
-end
-
-if save_figures
-    saveas(figure(1),[pwd '\ExA\exA_Cinf.fig']);
-end
+% if save_matrices
+%     dlmwrite([pwd '\ExA\exA_A.csv'], A)
+%     dlmwrite([pwd '\ExA\exA_B.csv'], B)
+%     dlmwrite([pwd '\ExA\exA_xlb.csv'], model.x.min)
+%     dlmwrite([pwd '\ExA\exA_xub.csv'], model.x.max)
+%     dlmwrite([pwd '\ExA\exA_ulb.csv'], model.u.min)
+%     dlmwrite([pwd '\ExA\exA_uub.csv'], model.u.max)
+%     dlmwrite([pwd '\ExA\exA_cinfH.csv'], Cinf.H)
+%     dlmwrite([pwd '\ExA\exA_cinfV.csv'], Cinf.V)
+% end
+% 
+% if save_figures
+%     saveas(figure(1),[pwd '\ExA\exA_Cinf.fig']);
+% end
 
 
 % ------------------ Example B ------------------
