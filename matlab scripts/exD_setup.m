@@ -12,15 +12,27 @@ save_figures = true;
 
 % matrices of LTI dynamics 
 % x(k+1) = A*x(k) + B*u(k)
-A=[1 1 ; 0 1];
-B=[0 ; 1];
+A=[2 0 ; 2 1];
+B=[1 ; 0];
+
+AT = transpose(A);
+BT = transpose(B);
+
+O = obsv(AT, BT);
+k = rank(O)
+if k == 2
+    compute = true;    
+else
+    compute = false;
+end
+
 
 % create model in MPT3 interface
 model = LTISystem('A',A,'B',B);
 
 % constraints on inputs and states
-model.u.min = -0.5;
-model.u.max = 0.5;
+model.u.min = -1;
+model.u.max = 1;
 model.x.min = [-5 ; -5];
 model.x.max = [5 ; 5];
 
