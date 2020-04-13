@@ -8,7 +8,7 @@ from datetime import datetime
 if __name__ == "__main__":
     example = str(sys.argv[1]).upper()
     ntrajs = int(sys.argv[2])
-    N = int(sys.argv[3])
+    nsim = int(sys.argv[3])
     if len(sys.argv) > 4:
         date = sys.argv[4]
     else:
@@ -29,10 +29,10 @@ if __name__ == "__main__":
     to_plot = True
 
     for i in range(ntrajs):
-        traj_proj_NN = np.loadtxt(filename_trajs+'projNN_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
-        traj_noproj_NN = np.loadtxt(filename_trajs+'noprojNN_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
-        traj_mpc = np.loadtxt(filename_trajs+'mpc_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
-        traj_lqr_proj_NN = np.loadtxt(filename_trajs+'lqr_projNN_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
+        traj_proj_NN = np.loadtxt(filename_trajs+'projNN_ntrajs_{}_nsim_{}_traj_{}.csv'.format(ntrajs, nsim, i+1), delimiter=',')
+        traj_noproj_NN = np.loadtxt(filename_trajs+'noprojNN_ntrajs_{}_nsim_{}_traj_{}.csv'.format(ntrajs, nsim, i+1), delimiter=',')
+        traj_mpc = np.loadtxt(filename_trajs+'mpc_ntrajs_{}_nsim_{}_traj_{}.csv'.format(ntrajs, nsim, i+1), delimiter=',')
+        traj_lqr_proj_NN = np.loadtxt(filename_trajs+'lqr_projNN_ntrajs_{}_nsim_{}_traj_{}.csv'.format(ntrajs, nsim, i+1), delimiter=',')
 
         #trajs = [traj_proj_NN, traj_noproj_NN, traj_mpc]
         #names = ["Proj NN", "NoProj NN", "MPC"]
@@ -76,7 +76,7 @@ if __name__ == "__main__":
             #plt.savefig(filen_fig)
 
 
-            filen_fig = 'ex{}/{}/comparison_plots/ex{}_comparison_trajectory_{}_N_{}.png'.format(example, date, example, i+1, N)
+            filen_fig = 'ex{}/{}/comparison_plots/ex{}_comparison_trajectory_{}_nsim_{}.png'.format(example, date, example, i+1, nsim)
             #plt.savefig(filen_fig)
             plt.tight_layout()
             plt.subplots_adjust(top=0.832, bottom=0.132, left=0.07, right=0.979, hspace=0.2, wspace=0.179)
@@ -84,7 +84,7 @@ if __name__ == "__main__":
             fig_manager = plt.get_current_fig_manager()
             fig_manager.window.showMaximized()
 
-            filen_fig = filename_comp+'comp_ntrajs_{}_N_{}_traj_{}.png'.format(ntrajs, N, i+1)
+            filen_fig = filename_comp+'comp_ntrajs_{}_nsim_{}_traj_{}.png'.format(ntrajs, nsim, i+1)
             plt.savefig(filen_fig)
 
             to_show = False

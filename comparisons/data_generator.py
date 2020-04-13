@@ -187,7 +187,7 @@ print("Kept data: ", len(feasible_states), "/", len(states))
 
 
 filenameIn = 'ex{}/input_data/ex{}_input_data_nsamples_{}_{}.csv'.format(example, example, nsamples, gen_type)
-filenameOut = 'ex{}/output_date/ex{}_output_data_nsamples_{}_{}.csv'.format(example, example, nsamples, gen_type)
+filenameOut = 'ex{}/output_data/ex{}_output_data_nsamples_{}_{}.csv'.format(example, example, nsamples, gen_type)
 
 savetxt(filenameIn, feasible_states, delimiter = ',')
 savetxt(filenameOut, feasible_inputs, delimiter = ',')

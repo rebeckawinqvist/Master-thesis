@@ -9,7 +9,7 @@ from datetime import datetime
 if __name__ == "__main__":
     example = str(sys.argv[1]).upper()
     ntrajs = int(sys.argv[2])
-    N = int(sys.argv[3])
+    nsim = int(sys.argv[3])
     if len(sys.argv) > 4:
         date = sys.argv[4]
     else:
@@ -41,15 +41,15 @@ if __name__ == "__main__":
     costs_dict = dict(zip(names, costs))
 
     for i in range(ntrajs):
-        traj_projNN = np.loadtxt(filename_trajs+'projNN_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
-        traj_noprojNN = np.loadtxt(filename_trajs+'noprojNN_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
-        traj_mpc = np.loadtxt(filename_trajs+'mpc_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
-        traj_lqr_projNN = np.loadtxt(filename_trajs+'lqr_projNN_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
+        traj_projNN = np.loadtxt(filename_trajs+'pdnn_ntrajs_{}_nsim_{}_traj_{}.csv'.format(ntrajs, nsim, i+1), delimiter=',')
+        traj_noprojNN = np.loadtxt(filename_trajs+'dnn_ntrajs_{}_nsim_{}_traj_{}.csv'.format(ntrajs, nsim, i+1), delimiter=',')
+        traj_mpc = np.loadtxt(filename_trajs+'mpc_ntrajs_{}_nsim_{}_traj_{}.csv'.format(ntrajs, nsim, i+1), delimiter=',')
+        traj_lqr_projNN = np.loadtxt(filename_trajs+'lqr_pdnn_ntrajs_{}_nsim_{}_traj_{}.csv'.format(ntrajs, nsim, i+1), delimiter=',')
 
-        controls_projNN = np.loadtxt(filename_trajs+'projNN_controls_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
-        controls_noprojNN = np.loadtxt(filename_trajs+'noprojNN_controls_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
-        controls_mpc = np.loadtxt(filename_trajs+'mpc_controls_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
-        controls_lqr_projNN = np.loadtxt(filename_trajs+'lqr_projNN_controls_ntrajs_{}_N_{}_traj_{}.csv'.format(ntrajs, N, i+1), delimiter=',')
+        controls_projNN = np.loadtxt(filename_trajs+'pdnn_controls_ntrajs_{}_nsim_{}_traj_{}.csv'.format(ntrajs, nsim, i+1), delimiter=',')
+        controls_noprojNN = np.loadtxt(filename_trajs+'dnn_controls_ntrajs_{}_nsim_{}_traj_{}.csv'.format(ntrajs, nsim, i+1), delimiter=',')
+        controls_mpc = np.loadtxt(filename_trajs+'mpc_controls_ntrajs_{}_nsim_{}_traj_{}.csv'.format(ntrajs, nsim, i+1), delimiter=',')
+        controls_lqr_projNN = np.loadtxt(filename_trajs+'lqr_pdnn_controls_ntrajs_{}_nsim_{}_traj_{}.csv'.format(ntrajs, nsim, i+1), delimiter=',')
 
         trajs = [traj_projNN, traj_lqr_projNN, traj_mpc, traj_noprojNN]
         controls = [controls_projNN, controls_lqr_projNN, controls_mpc, controls_noprojNN]
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     for key in costs_dict:
         print(key + ": ")
         name_key = key.lower().replace(" ", "_")
-        fn = filename_costs+'ex{}_{}_cost_dict_ntrajs_{}_N_{}.csv'.format(example, name_key, ntrajs, N)
+        fn = filename_costs+'ex{}_{}_cost_dict_ntrajs_{}_nsim_{}.csv'.format(example, name_key, ntrajs, nsim)
         np.savetxt(fn, np.array(costs_dict[key]), delimiter=',')
         for c in costs_dict[key]:
             #print(c)
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     plt.ylabel("Cost")
 
     plt.xticks(np.arange(0, ntrajs+1, step=1))
-    filen_fig = filename_evals+'evaluation_ntrajs_{}_N_{}_alltrajs.png'.format(ntrajs, N)
+    filen_fig = filename_evals+'evaluation_ntrajs_{}_nsim_{}_alltrajs.png'.format(ntrajs, nsim)
     plt.savefig(filen_fig)
     plt.show()
 
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     plt.legend(loc = 'upper right')
     plt.show()
 
-    np.savetxt(filename_evals+'eval_projNN_ntrajs_{}_N_{}_alltrajs'.format(ntrajs, N)+".csv", costs_dict["Proj NN"], delimiter=',')
-    np.savetxt(filename_evals+'eval_noprojNN_ntrajs_{}_N_{}_alltrajs'.format(ntrajs, N)+".csv", costs_dict["NoProj NN"], delimiter=',')
-    np.savetxt(filename_evals+'eval_mpc_ntrajs_{}_N_{}_alltrajs'.format(ntrajs, N)+".csv", costs_dict["MPC"] , delimiter=',')
-    np.savetxt(filename_evals+'eval_lqr_projNN_ntrajs_{}_N_{}_alltrajs'.format(ntrajs, N)+".csv", costs_dict["LQR Proj NN"] , delimiter=',')
+    np.savetxt(filename_evals+'eval_projNN_ntrajs_{}_nsim_{}_alltrajs'.format(ntrajs, nsim)+".csv", costs_dict["Proj NN"], delimiter=',')
+    np.savetxt(filename_evals+'eval_noprojNN_ntrajs_{}_nsim_{}_alltrajs'.format(ntrajs, nsim)+".csv", costs_dict["NoProj NN"], delimiter=',')
+    np.savetxt(filename_evals+'eval_mpc_ntrajs_{}_nsim_{}_alltrajs'.format(ntrajs, nsim)+".csv", costs_dict["MPC"] , delimiter=',')
+    np.savetxt(filename_evals+'eval_lqr_projNN_ntrajs_{}_nsim_{}_alltrajs'.format(ntrajs, nsim)+".csv", costs_dict["LQR Proj NN"] , delimiter=',')

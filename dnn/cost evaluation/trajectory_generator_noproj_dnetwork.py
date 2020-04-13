@@ -18,7 +18,7 @@ from datetime import datetime
 
 example = str(sys.argv[1]).upper()
 ntrajs = int(sys.argv[2])
-N = int(sys.argv[3])
+nsim = int(sys.argv[3])
 if len(sys.argv) > 4:
     date = sys.argv[4]
 else:
@@ -125,13 +125,13 @@ if __name__ == "__main__":
     for sample in initial_states:
         x0 = sample
         traj = [x0]
-        traj_matrix = np.zeros((N,n))
+        traj_matrix = np.zeros((nsim,n))
         traj_matrix[0,:] = x0
-        u_matrix = np.zeros((N-1,m))
+        u_matrix = np.zeros((nsim-1,m))
         x0 = torch.from_numpy(sample).float()
 
         # simulate in closed loop
-        for i in range(N-1):
+        for i in range(nsim-1):
             u = NN(x0)
             if m >= 2:
                 x1 = np.dot(A, x0.numpy()) + np.dot(B, u.data.numpy().flatten())
@@ -153,12 +153,12 @@ if __name__ == "__main__":
             plt.title(title)
             plt.xlabel(xlabel)
             plt.ylabel(ylabel) 
-            filen_fig = filename_save+"dnn_ntrajs_{}_N_{}_traj_{}".format(ntrajs, N, s+1)+".png"
+            filen_fig = filename_save+"dnn_ntrajs_{}_nsim_{}_traj_{}".format(ntrajs, nsim, s+1)+".png"
 
             plt.savefig(filen_fig)
             #plt.show()
         
-        np.savetxt(filename_save+'dnn_ntrajs_{}_N_{}_traj_{}'.format(ntrajs, N, s+1)+".csv", traj_matrix, delimiter=',')
-        np.savetxt(filename_save+'dnn_controls_ntrajs_{}_N_{}_traj_{}'.format(ntrajs, N, s+1)+".csv", u_matrix, delimiter=',')
+        np.savetxt(filename_save+'dnn_ntrajs_{}_nsim_{}_traj_{}'.format(ntrajs, nsim, s+1)+".csv", traj_matrix, delimiter=',')
+        np.savetxt(filename_save+'dnn_controls_ntrajs_{}_nsim_{}_traj_{}'.format(ntrajs, nsim, s+1)+".csv", u_matrix, delimiter=',')
         s += 1
 
