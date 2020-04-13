@@ -8,12 +8,12 @@ figure_name = ['.',filesep,'figures',filesep,'invariantSet_ex_12_4'];
 save_matrices = true;
 save_figures = true;
 
-% ------------------ Example B ------------------
+% ------------------ Example D ------------------
 
 % matrices of LTI dynamics 
 % x(k+1) = A*x(k) + B*u(k)
-A=[1 1 ; 0 1];
-B=[1 ; 1];
+A=[1 0 ; 1 1];
+B=[2 ; 1];
 
 AT = transpose(A);
 BT = transpose(B);
@@ -58,8 +58,8 @@ if compute
         else
             X0 = P;
             % "else"
-            %X0.H
-            %X_test.H
+            % X0.H
+            % X_test.H
         end
     end
 
@@ -72,7 +72,7 @@ if compute
     CinfH = Cinf.H;
     CinfV = Cinf.V;
 
-    figure(2)
+    figure(3)
     % plot the constraint set
     plot(X,'color',[0.7 0.7 0.7],'linewidth',line_width);
     hold on
@@ -82,7 +82,7 @@ if compute
     % plot the invariant set
     plot(Cinf,'color',[0.5 0.5 0.5],'linewidth',line_width)
     axis([model.x.min(1),model.x.max(1),model.x.min(2),model.x.max(2)])
-    title('ExB: C_\infty ')
+    title('ExD: C_\infty ')
 
     set(gca,'LineWidth',axeswidth)
     set(gca,'FontSize', tick_font_size);
@@ -109,17 +109,17 @@ if compute
 
     % write system dynamics to file
     if save_matrices
-        dlmwrite([pwd '\exB\exB_A.csv'], A)
-        dlmwrite([pwd '\exB\exB_B.csv'], B)
-        dlmwrite([pwd '\exB\exB_xlb.csv'], model.x.min)
-        dlmwrite([pwd '\exB\exB_xub.csv'], model.x.max)
-        dlmwrite([pwd '\exB\exB_ulb.csv'], model.u.min)
-        dlmwrite([pwd '\exB\exB_uub.csv'], model.u.max)
-        dlmwrite([pwd '\exB\exB_cinfH.csv'], Cinf.H)
-        dlmwrite([pwd '\exB\exB_cinfV.csv'], Cinf.V)
+        dlmwrite([pwd '\exC\exC_A.csv'], A)
+        dlmwrite([pwd '\exC\exC_B.csv'], B)
+        dlmwrite([pwd '\exC\exC_xlb.csv'], model.x.min)
+        dlmwrite([pwd '\exC\exC_xub.csv'], model.x.max)
+        dlmwrite([pwd '\exC\exC_ulb.csv'], model.u.min)
+        dlmwrite([pwd '\exC\exC_uub.csv'], model.u.max)
+        dlmwrite([pwd '\exC\exC_cinfH.csv'], Cinf.H)
+        dlmwrite([pwd '\exC\exC_cinfV.csv'], Cinf.V)
     end
 
     if save_figures
-        saveas(figure(2),[pwd '\ExB\exB_Cinf.fig']);
+        saveas(figure(3),[pwd '\ExD\exD_Cinf.fig']);
     end
 end
