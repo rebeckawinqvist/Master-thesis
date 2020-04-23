@@ -234,7 +234,8 @@ if __name__ == "__main__":
     NN = Network([8,8])
     #NN.load_state_dict(torch.load('saved_model.pt'), strict=False)
     optimizer = torch.optim.Adam(NN.parameters(), lr = learning_rate)
-    NN.to(device)
+    #NN.to(device)
+    NN.cuda()
     m = NN.problem_params['m']
 
     # data
